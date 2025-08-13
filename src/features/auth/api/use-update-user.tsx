@@ -26,10 +26,9 @@ export const useUpdateUser = () => {
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("Profile updated successfully");
-      window.location.pathname = "/";
+      toast.success("Profile updated");
 
-      queryClient.invalidateQueries({ queryKey: ["current"] });
+      queryClient.invalidateQueries();
     },
     onError: () => {
       toast.error("Failed to update profile");

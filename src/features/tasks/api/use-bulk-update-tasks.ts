@@ -19,7 +19,6 @@ export const useBulkUpdateTasks = () => {
     mutationFn: async ({ json }) => {
       const responce = await client.api.tasks["bulk-update"]["$post"]({
         json,
-        
       });
 
       if (!responce.ok) {
@@ -31,6 +30,8 @@ export const useBulkUpdateTasks = () => {
     onSuccess: () => {
       toast.success("Tasks updated");
 
+      queryClient.invalidateQueries({ queryKey: ["workspace-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["project-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: () => {

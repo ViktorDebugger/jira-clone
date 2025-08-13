@@ -7,24 +7,24 @@ export const useCreateTaskModal = () => {
     parseAsBoolean.withDefault(false)
   );
 
-  const [status, setStatus] = useQueryState("status");
+  const [initialStatus, setInitialStatus] = useQueryState("initial-status");
 
-  const open = (initialStatus?: TaskStatus) => {
+  const open = (defaultStatus?: TaskStatus) => {
     setIsOpen(true);
-    if (initialStatus) {
-      setStatus(initialStatus);
+    if (defaultStatus) {
+      setInitialStatus(defaultStatus);
     }
   };
 
   const close = () => {
     setIsOpen(false);
-    setStatus(null);
+    setInitialStatus(null);
   };
 
   return {
     isOpen,
     open,
     close,
-    status: status as TaskStatus | undefined,
+    initialStatus: initialStatus as TaskStatus | undefined,
   };
 };
