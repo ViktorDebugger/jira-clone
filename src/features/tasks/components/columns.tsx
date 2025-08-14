@@ -28,7 +28,7 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const name = row.original.name;
 
-      return <p className="line-clamp-1">{name}</p>;
+      return <p className="line-clamp-1 max-w-64 truncate">{name}</p>;
     },
   },
   {
@@ -54,7 +54,7 @@ export const columns: ColumnDef<Task>[] = [
             name={project!.name}
             image={project!.imageUrl}
           />
-          <p className="line-clamp-1">{project!.name}</p>
+          <p className="line-clamp-1 max-w-64 truncate">{project!.name}</p>
         </div>
       );
     },
@@ -82,7 +82,7 @@ export const columns: ColumnDef<Task>[] = [
             fallbackClassName="text-xs"
             name={assignee!.name}
           />
-          <p className="line-clamp-1">{assignee!.name}</p>
+          <p className="line-clamp-1 max-w-64 truncate">{assignee!.name}</p>
         </div>
       );
     },
