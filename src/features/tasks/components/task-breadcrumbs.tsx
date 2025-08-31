@@ -33,7 +33,7 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
       { param: { taskId: task.$id } },
       {
         onSuccess: () => {
-          router.push(`workspaces/${workspaceId}/tasks`);
+          router.replace(`/workspaces/${workspaceId}/tasks`);
         },
       }
     );
@@ -53,7 +53,9 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
         </p>
       </Link>
       <ChevronRightIcon className="size-4 lg:size-5 text-muted-foreground" />
-      <p className="text-sm lg:text-lg line-clamp-1 max-w-[600px] font-semibold">{task.name}</p>
+      <p className="text-sm lg:text-lg line-clamp-1 max-w-[600px] font-semibold">
+        {task.name}
+      </p>
       <Button
         onClick={handleDeleteTask}
         disabled={isPending}
