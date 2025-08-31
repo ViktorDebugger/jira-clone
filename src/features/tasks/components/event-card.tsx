@@ -41,13 +41,16 @@ export const EventCard = ({
 
   return (
     <div className="px-2">
-      <div onClick={onClick}
+      <div
+        onClick={onClick}
         className={cn(
-          "p-1.5 text-xs bg-white text-primary border border-l-4 rounded-md flex flex-col gap-y-1.5 cursor-pointer hover:opacity-75 transition",
+          "p-1.5 text-xs bg-white text-primary truncate border border-l-4 rounded-md flex flex-col gap-y-1.5 cursor-pointer hover:opacity-75 transition",
           statusColorMap[status]
         )}
       >
-        <p>{title}</p>
+        <p className="truncate max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+          {title}
+        </p>
         <div className="flex items-center gap-x-3">
           <MemberAvatar name={assignee?.name} />
           <div className="size-1 rounded-full bg-neutral-300" />

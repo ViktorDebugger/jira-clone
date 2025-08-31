@@ -90,34 +90,38 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
   };
 
   return (
-    <Calendar
-      localizer={localizer}
-      date={value}
-      events={events}
-      views={["month"]}
-      defaultView="month"
-      toolbar
-      showAllEvents
-      className="h-full"
-      max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
-      formats={{
-        weekdayFormat: (date, culture, localizer) =>
-          localizer?.format(date, "EEE", culture) ?? "",
-      }}
-      components={{
-        eventWrapper: ({ event }) => (
-          <EventCard
-            id={event.id}
-            title={event.title}
-            assignee={event.assignee!}
-            project={event.project!}
-            status={event.status}
-          />
-        ),
-        toolbar: () => (
-          <CustomToolbar date={value} onNavigate={handleNavigate} />
-        ),
-      }}
-    />
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[1000px]">
+        <Calendar
+          localizer={localizer}
+          date={value}
+          events={events}
+          views={["month"]}
+          defaultView="month"
+          toolbar
+          showAllEvents
+          className="h-full"
+          max={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
+          formats={{
+            weekdayFormat: (date, culture, localizer) =>
+              localizer?.format(date, "EEE", culture) ?? "",
+          }}
+          components={{
+            eventWrapper: ({ event }) => (
+              <EventCard
+                id={event.id}
+                title={event.title}
+                assignee={event.assignee!}
+                project={event.project!}
+                status={event.status}
+              />
+            ),
+            toolbar: () => (
+              <CustomToolbar date={value} onNavigate={handleNavigate} />
+            ),
+          }}
+        />
+      </div>
+    </div>
   );
 };
