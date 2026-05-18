@@ -44,11 +44,13 @@ import { CreateTagForm } from "./create-tag-form";
 import { HEX_FALLBACK, TagHexInput } from "./tag-hex-input";
 
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { useWorkspaceAdmin } from "@/features/workspaces/hooks/use-workspace-admin";
 import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 import { updateTagSchema } from "../schemas";
 
 export const WorkspaceTagsSection = () => {
   const workspaceId = useWorkspaceId();
+  const { isAdmin } = useWorkspaceAdmin();
   const { data: tagsPayload, isLoading } = useGetTags({ workspaceId });
   const tags = tagsPayload?.documents ?? [];
 
@@ -109,7 +111,9 @@ export const WorkspaceTagsSection = () => {
       <CardHeader>
         <CardTitle className="text-xl font-bold text-neutral-100">Теги</CardTitle>
         <p className="text-sm text-neutral-400 font-normal pt-1">
-          Керування тегами для завдань у цьому робочому просторі.
+          {isAdmin
+            ? "Керування тегами для завдань у цьому робочому просторі."
+            : "Теги для завдань у цьому робочому просторі. Керувати ними може лише адміністратор."}
         </p>
       </CardHeader>
       <CardContent className="flex flex-col gap-y-6 pb-8 pt-0">
@@ -122,22 +126,32 @@ export const WorkspaceTagsSection = () => {
                 <TableHead className="hidden sm:table-cell text-neutral-400">
                   HEX
                 </TableHead>
-                <TableHead className="w-[100px] text-right text-neutral-400">
-                  Дії
-                </TableHead>
+                {isAdmin ? (
+                  <TableHead className="w-[100px] text-right text-neutral-400">
+                    Дії
+                  </TableHead>
+                ) : null}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow className="border-neutral-800">
-                  <TableCell colSpan={4} className="text-neutral-400 py-8 text-center">
+                  <TableCell
+                    colSpan={isAdmin ? 4 : 3}
+                    className="text-neutral-400 py-8 text-center"
+                  >
                     Завантаження…
                   </TableCell>
                 </TableRow>
               ) : tags.length === 0 ? (
                 <TableRow className="border-neutral-800">
-                  <TableCell colSpan={4} className="text-neutral-400 py-8 text-center">
-                    Немає тегів. Додайте перший нижче.
+                  <TableCell
+                    colSpan={isAdmin ? 4 : 3}
+                    className="text-neutral-400 py-8 text-center"
+                  >
+                    {isAdmin
+                      ? "Немає тегів. Додайте перший нижче."
+                      : "Немає тегів."}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -154,32 +168,36 @@ export const WorkspaceTagsSection = () => {
                     <TableCell className="hidden sm:table-cell font-mono text-sm text-neutral-400">
                       {tag.color}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-neutral-400 hover:text-neutral-100"
-                          aria-label={`Редагувати тег «${tag.name}»`}
-                          onClick={() => setEditingTag(tag)}
-                        >
-                          <PencilIcon className="size-4" />
-                        </Button>
-                        <AdminOnlyAction>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-neutral-400 hover:text-red-400"
-                            aria-label={`Видалити тег «${tag.name}»`}
-                            onClick={() => handleConfirmDelete(tag)}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        </AdminOnlyAction>
-                      </div>
-                    </TableCell>
+                    {isAdmin ? (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <AdminOnlyAction>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-neutral-400 hover:text-neutral-100"
+                              aria-label={`Редагувати тег «${tag.name}»`}
+                              onClick={() => setEditingTag(tag)}
+                            >
+                              <PencilIcon className="size-4" />
+                            </Button>
+                          </AdminOnlyAction>
+                          <AdminOnlyAction>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-neutral-400 hover:text-red-400"
+                              aria-label={`Видалити тег «${tag.name}»`}
+                              onClick={() => handleConfirmDelete(tag)}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </AdminOnlyAction>
+                        </div>
+                      </TableCell>
+                    ) : null}
                   </TableRow>
                 ))
               )}
@@ -187,13 +205,17 @@ export const WorkspaceTagsSection = () => {
           </Table>
         </div>
 
-        <DottedSeparator />
+        {isAdmin ? (
+          <>
+            <DottedSeparator />
+            <div>
+              <h3 className="text-sm font-semibold text-neutral-100 mb-3">Додати тег</h3>
+              <CreateTagForm embedded />
+            </div>
+          </>
+        ) : null}
 
-        <div>
-          <h3 className="text-sm font-semibold text-neutral-100 mb-3">Додати тег</h3>
-          <CreateTagForm embedded />
-        </div>
-
+        {isAdmin ? (
         <Dialog
           open={editingTag !== null}
           onOpenChange={(open) => !open && setEditingTag(null)}
@@ -263,6 +285,7 @@ export const WorkspaceTagsSection = () => {
             ) : null}
           </DialogContent>
         </Dialog>
+        ) : null}
       </CardContent>
     </Card>
   );

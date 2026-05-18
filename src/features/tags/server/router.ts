@@ -105,6 +105,10 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
+      if (!isWorkspaceAdmin(member)) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
       const updated = await databases.updateDocument(
         DATABASE_ID,
         TAGS_ID,

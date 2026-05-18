@@ -10,6 +10,7 @@ import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { useProjectId } from "@/features/projects/hooks/use-project-id";
 import { ProjectSprintsSection } from "@/features/sprints/components/project-sprints-section";
 import { TaskViewSwitcher } from "@/features/tasks/components/task-view-switcher";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -42,7 +43,7 @@ export const ProjectIdClient = () => {
           />
           <p className="text-lg font-semibold">{project.name}</p>
         </div>
-        <div>
+        <AdminOnlyAction>
           <Button variant={"secondary"} size={"sm"} asChild>
             <Link
               href={`/workspaces/${project.workspaceId}/projects/${project.$id}/settings`}
@@ -51,7 +52,7 @@ export const ProjectIdClient = () => {
               Редагувати проєкт
             </Link>
           </Button>
-        </div>
+        </AdminOnlyAction>
       </div>
       {analytics && <Analytics data={analytics} />}
       <ProjectSprintsSection workspaceId={project.workspaceId} projectId={project.$id} />

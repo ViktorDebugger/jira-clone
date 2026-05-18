@@ -29,6 +29,7 @@ import { useUpdateProject } from "../api/use-update-project";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteProject } from "../api/use-delete-project";
 import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
+import { useWorkspaceAdmin } from "@/features/workspaces/hooks/use-workspace-admin";
 
 interface EditProjectFormProps {
   onCancel?: () => void;
@@ -40,6 +41,7 @@ export const EditProjectForm = ({
   initialValues,
 }: EditProjectFormProps) => {
   const router = useRouter();
+  const { isAdmin } = useWorkspaceAdmin();
   const { mutate, isPending } = useUpdateProject();
   const { mutate: deleteProject, isPending: isDeletingProject } =
     useDeleteProject();
@@ -115,13 +117,18 @@ export const EditProjectForm = ({
             Назад
           </Button>
           <CardTitle className="min-w-0 flex-1 text-xl font-bold text-neutral-100">
-            Редагувати проєкт
+            {isAdmin ? "Редагувати проєкт" : "Проєкт"}
           </CardTitle>
         </CardHeader>
         <div className="px-4">
           <DottedSeparator />
         </div>
         <CardContent className="p-4">
+          {!isAdmin ? (
+            <p className="text-sm text-neutral-400">
+              Керувати проєктом може лише адміністратор робочого простору.
+            </p>
+          ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-y-4">
@@ -233,9 +240,11 @@ export const EditProjectForm = ({
               </div>
             </form>
           </Form>
+          )}
         </CardContent>
       </Card>
 
+      {isAdmin ? (
       <Card className="w-full h-full border-none shadow-none">
         <CardContent className="p-4">
           <div className="flex flex-col">
@@ -261,6 +270,7 @@ export const EditProjectForm = ({
           </div>
         </CardContent>
       </Card>
+      ) : null}
     </div>
   );
 };

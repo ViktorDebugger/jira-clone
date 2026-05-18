@@ -146,6 +146,10 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
+      if (!isWorkspaceAdmin(member)) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
       const updates: Record<string, unknown> = {};
       if (body.name !== undefined) updates.name = body.name;
       if (body.startDate !== undefined) {

@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/table";
 import { useConfirm } from "@/hooks/use-confirm";
 import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
+import { useWorkspaceAdmin } from "@/features/workspaces/hooks/use-workspace-admin";
 
 import { useCreateSprint } from "../api/use-create-sprint";
 import { useDeleteSprint } from "../api/use-delete-sprint";
@@ -65,6 +66,7 @@ export const ProjectSprintsSection = ({
   workspaceId,
   projectId,
 }: ProjectSprintsSectionProps) => {
+  const { isAdmin } = useWorkspaceAdmin();
   const { data: sprintsPayload, isLoading } = useGetSprints({
     workspaceId,
     projectId,
@@ -191,8 +193,9 @@ export const ProjectSprintsSection = ({
             Спринти
           </CardTitle>
           <p className="text-sm font-normal text-neutral-400">
-            Ітерації цього проєкту. Задачі можна привʼязувати до спринта під час
-            створення або редагування завдання.
+            {isAdmin
+              ? "Ітерації цього проєкту. Задачі можна привʼязувати до спринта під час створення або редагування завдання."
+              : "Ітерації цього проєкту. Керувати спринтами може лише адміністратор."}
           </p>
         </div>
         <AdminOnlyAction>
@@ -209,6 +212,7 @@ export const ProjectSprintsSection = ({
         </AdminOnlyAction>
       </CardHeader>
       <CardContent className="pb-8 pt-0">
+        {isAdmin ? (
         <Dialog open={createOpen} onOpenChange={handleCreateOpenChange}>
           <DialogContent className="border-neutral-800 bg-neutral-950 text-neutral-100 sm:max-w-md">
             <DialogHeader>
@@ -276,6 +280,7 @@ export const ProjectSprintsSection = ({
             </Form>
           </DialogContent>
         </Dialog>
+        ) : null}
 
         {isLoading ? (
           <div className="flex h-36 items-center justify-center rounded-md border border-neutral-800">
@@ -283,7 +288,9 @@ export const ProjectSprintsSection = ({
           </div>
         ) : sprints.length === 0 ? (
           <p className="rounded-md border border-neutral-800 py-12 text-center text-sm text-muted-foreground">
-            Ще немає спринтів. Натисніть «Створити спринт», щоб додати перший.
+            {isAdmin
+              ? "Ще немає спринтів. Натисніть «Створити спринт», щоб додати перший."
+              : "Ще немає спринтів."}
           </p>
         ) : (
           <div className="overflow-x-auto rounded-md border border-neutral-800">
@@ -293,9 +300,11 @@ export const ProjectSprintsSection = ({
                   <TableHead className="text-neutral-400">Назва</TableHead>
                   <TableHead className="text-neutral-400">Початок</TableHead>
                   <TableHead className="text-neutral-400">Кінець</TableHead>
-                  <TableHead className="text-neutral-400 w-24 text-right">
-                    Дії
-                  </TableHead>
+                  {isAdmin ? (
+                    <TableHead className="text-neutral-400 w-24 text-right">
+                      Дії
+                    </TableHead>
+                  ) : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -314,32 +323,36 @@ export const ProjectSprintsSection = ({
                         locale: uk,
                       })}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-neutral-300"
-                          aria-label={`Редагувати ${sprint.name}`}
-                          onClick={() => setEditingSprint(sprint)}
-                        >
-                          <PencilIcon className="size-4" />
-                        </Button>
-                        <AdminOnlyAction>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-red-400 hover:text-red-300"
-                            aria-label={`Видалити ${sprint.name}`}
-                            onClick={() => void handleDelete(sprint)}
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        </AdminOnlyAction>
-                      </div>
-                    </TableCell>
+                    {isAdmin ? (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <AdminOnlyAction>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-neutral-300"
+                              aria-label={`Редагувати ${sprint.name}`}
+                              onClick={() => setEditingSprint(sprint)}
+                            >
+                              <PencilIcon className="size-4" />
+                            </Button>
+                          </AdminOnlyAction>
+                          <AdminOnlyAction>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-red-400 hover:text-red-300"
+                              aria-label={`Видалити ${sprint.name}`}
+                              onClick={() => void handleDelete(sprint)}
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </AdminOnlyAction>
+                        </div>
+                      </TableCell>
+                    ) : null}
                   </TableRow>
                 ))}
               </TableBody>
@@ -347,6 +360,7 @@ export const ProjectSprintsSection = ({
           </div>
         )}
 
+        {isAdmin ? (
         <Dialog
           open={editingSprint !== null}
           onOpenChange={(openState) => {
@@ -419,6 +433,7 @@ export const ProjectSprintsSection = ({
             </Form>
           </DialogContent>
         </Dialog>
+        ) : null}
       </CardContent>
     </Card>
   );

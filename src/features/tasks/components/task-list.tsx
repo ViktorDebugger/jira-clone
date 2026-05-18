@@ -7,6 +7,7 @@ import { CalendarIcon, PlusIcon } from "lucide-react";
 import { DottedSeparator } from "@/components/dotted-separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { uk } from "date-fns/locale";
 import Link from "next/link";
 
 interface TaskListProps {
@@ -47,7 +48,10 @@ export const TaskList = ({ data, total }: TaskListProps) => {
                       <div className="text-sm text-muted-foreground flex items-center">
                         <CalendarIcon className="size-3 mr-1" />
                         <span className="truncate">
-                          {formatDistanceToNow(new Date(task.dueDate))}
+                          {formatDistanceToNow(new Date(task.dueDate), {
+                            locale: uk,
+                            addSuffix: true,
+                          })}
                         </span>
                       </div>
                     </div>
