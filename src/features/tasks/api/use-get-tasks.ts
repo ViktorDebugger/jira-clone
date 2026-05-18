@@ -10,6 +10,7 @@ interface UseGetTasksProps {
   search?: string | null;
   assigneeId?: string | null;
   dueDate?: string | null;
+  tagIds?: string[] | null;
 }
 
 export const useGetTasks = ({
@@ -19,7 +20,11 @@ export const useGetTasks = ({
   search,
   assigneeId,
   dueDate,
+  tagIds,
 }: UseGetTasksProps) => {
+  const tagIdsSorted =
+    tagIds && tagIds.length > 0 ? [...tagIds].sort().join(",") : null;
+
   const query = useQuery({
     queryKey: [
       "tasks",
@@ -29,6 +34,7 @@ export const useGetTasks = ({
       search,
       assigneeId,
       dueDate,
+      tagIdsSorted,
     ],
     queryFn: async () => {
       const responce = await client.api.tasks.$get({
@@ -39,6 +45,7 @@ export const useGetTasks = ({
           search: search ?? undefined,
           assigneeId: assigneeId ?? undefined,
           dueDate: dueDate ?? undefined,
+          tagIds: tagIdsSorted ?? undefined,
         },
       });
 

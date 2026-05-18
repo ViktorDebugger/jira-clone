@@ -28,14 +28,17 @@ export const useBulkUpdateTasks = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Tasks updated");
+      toast.success("Завдання оновлено");
 
       queryClient.invalidateQueries({ queryKey: ["workspace-analytics"] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-analytics-charts"],
+      });
       queryClient.invalidateQueries({ queryKey: ["project-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: () => {
-      toast.error("Failed to update tasks");
+      toast.error("Не вдалося оновити завдання");
     },
   });
 

@@ -1,19 +1,12 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-
 import { cn } from "@/lib/utils";
+import { defaultMetadata } from "@/lib/site-metadata";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Jira Clone",
-  description: "Simple Jira clone app",
-};
+export const metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
@@ -21,8 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={cn(inter.className, "antialiased min-h-screen")}>
+    <html lang="uk" className="dark">
+      <body
+        className={cn(
+          "font-sans min-h-screen bg-neutral-950 text-neutral-100 antialiased"
+        )}
+      >
         <QueryProvider>
           <Toaster />
           <NuqsAdapter>{children}</NuqsAdapter>

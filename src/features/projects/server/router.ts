@@ -4,7 +4,7 @@ import {
   PROJECTS_ID,
   TASKS_ID,
 } from "@/config";
-import { getMember } from "@/features/members/utils";
+import { getMember, isWorkspaceAdmin } from "@/features/members/utils";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -35,6 +35,10 @@ const app = new Hono()
 
       if (!member) {
         return c.json({ error: "Unathorized" }, 401);
+      }
+
+      if (!isWorkspaceAdmin(member)) {
+        return c.json({ error: "Forbidden" }, 403);
       }
 
       let uploadedImageUrl: string | undefined;
@@ -183,6 +187,10 @@ const app = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
+    if (!isWorkspaceAdmin(member)) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
     await databases.deleteDocument(DATABASE_ID, PROJECTS_ID, projectId);
 
     return c.json({ data: { $id: exisitingProject.$id } });
@@ -265,7 +273,7 @@ const app = new Hono()
       TASKS_ID,
       [
         Query.equal("projectId", projectId),
-        Query.equal("assigneeId", member.$id),
+        Query.contains("assigneeIds", member.$id),
         Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
         Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
       ]
@@ -276,7 +284,7 @@ const app = new Hono()
       TASKS_ID,
       [
         Query.equal("projectId", projectId),
-        Query.equal("assigneeId", member.$id),
+        Query.contains("assigneeIds", member.$id),
         Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
         Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
       ]

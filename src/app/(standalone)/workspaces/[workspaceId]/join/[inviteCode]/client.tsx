@@ -15,7 +15,7 @@ export const WorkspaceIdJoinClient = () => {
   }
 
   if (!initialValues) {
-    <PageError message="Project not found" />;
+    <PageError message="Робочий простір не знайдено" />;
   }
 
   return (

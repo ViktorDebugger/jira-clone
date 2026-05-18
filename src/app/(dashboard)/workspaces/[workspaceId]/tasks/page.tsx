@@ -1,6 +1,12 @@
 import { getCurrent } from "@/features/auth/queries";
 import { TaskViewSwitcher } from "@/features/tasks/components/task-view-switcher";
+import { pageMetadata } from "@/lib/site-metadata";
 import { redirect } from "next/navigation";
+
+export const metadata = pageMetadata(
+  "Завдання",
+  "Переглядайте та керуйте завданнями команди у FlowForge.",
+);
 
 const TasksPage = async () => {
   const user = await getCurrent();

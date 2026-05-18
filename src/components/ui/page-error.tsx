@@ -5,7 +5,7 @@ interface PageErrorProps {
 }
 
 export const PageError = ({
-  message = "Something went wrong",
+  message = "Щось пішло не так",
 }: PageErrorProps) => {
   return (
     <div className="flex flex-col items-center justify-center h-full">

@@ -26,12 +26,12 @@ export const useRegister = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Registered");
+      toast.success("Обліковий запис створено");
       router.refresh();
       queryClient.invalidateQueries({ queryKey: ["current"] });
     },
     onError: () => {
-      toast.error("Failed to register");
+      toast.error("Не вдалося зареєструватися");
     },
   });
 

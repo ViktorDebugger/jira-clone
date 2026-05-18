@@ -2,13 +2,29 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { createTaskSchema } from "../schemas";
-import { getMember } from "@/features/members/utils";
-import { DATABASE_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID } from "@/config";
+import { getMember, isWorkspaceAdmin } from "@/features/members/utils";
+import { DATABASE_ID, PROJECTS_ID, TASKS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import z from "zod";
 import { Task, TaskStatus } from "../types";
 import { createAdminClient } from "@/lib/appwrite";
 import { Project } from "@/features/projects/types";
+import {
+  fetchTagsMapForWorkspace,
+  orderedTagsFromIds,
+  fetchTagsOrderedForTask,
+  validateTaskTagIdsForWorkspace,
+} from "./task-tag-helpers";
+import {
+  fetchEnrichedMembersByIds,
+  orderedAssigneesFromMap,
+  validateAssigneeIdsForWorkspace,
+} from "./task-assignee-helpers";
+import {
+  validateSprintForProject,
+  fetchSprintsMapByIds,
+  getSprintForTaskPopulate,
+} from "./task-sprint-helpers";
 
 const app = new Hono()
   .delete("/:taskId", sessionMiddleware, async (c) => {
@@ -32,6 +48,10 @@ const app = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
+    if (!isWorkspaceAdmin(member)) {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
     await databases.deleteDocument(DATABASE_ID, TASKS_ID, taskId);
 
     return c.json({ data: { $id: task.$id } });
@@ -48,14 +68,14 @@ const app = new Hono()
         status: z.nativeEnum(TaskStatus).nullish(),
         search: z.string().nullish(),
         dueDate: z.string().nullish(),
+        tagIds: z.string().nullish(),
       })
     ),
     async (c) => {
-      const { users } = await createAdminClient();
       const databases = c.get("databases");
       const user = c.get("user");
 
-      const { workspaceId, projectId, status, search, assigneeId, dueDate } =
+      const { workspaceId, projectId, status, search, assigneeId, dueDate, tagIds } =
         c.req.valid("query");
 
       const member = await getMember({
@@ -74,28 +94,39 @@ const app = new Hono()
       ];
 
       if (projectId) {
-        console.log("projectId: ", projectId);
         query.push(Query.equal("projectId", projectId));
       }
 
       if (status) {
-        console.log("status: ", status);
         query.push(Query.equal("status", status));
       }
 
       if (assigneeId) {
-        console.log("assigneeId: ", assigneeId);
-        query.push(Query.equal("assigneeId", assigneeId));
+        query.push(Query.contains("assigneeIds", assigneeId));
       }
 
       if (dueDate) {
-        console.log("dueDate: ", dueDate);
         query.push(Query.equal("dueDate", dueDate));
       }
 
       if (search) {
-        console.log("search: ", search);
         query.push(Query.search("search", search));
+      }
+
+      const tagFilterIds = [
+        ...new Set(
+          (tagIds ?? "")
+            .split(",")
+            .map((id) => id.trim())
+            .filter(Boolean),
+        ),
+      ];
+      if (tagFilterIds.length > 0) {
+        query.push(
+          Query.or(
+            tagFilterIds.map((id) => Query.contains("tagIds", id)),
+          ),
+        );
       }
 
       const tasks = await databases.listDocuments<Task>(
@@ -105,7 +136,13 @@ const app = new Hono()
       );
 
       const projectIds = tasks.documents.map((task) => task.projectId);
-      const assigneeIds = tasks.documents.map((task) => task.assigneeId);
+      const allMemberIdsFromAssignees = [
+        ...new Set(
+          tasks.documents.flatMap((task) =>
+            (task.assigneeIds ?? []).map((id) => id.trim()).filter(Boolean),
+          ),
+        ),
+      ];
 
       const projects = await databases.listDocuments<Project>(
         DATABASE_ID,
@@ -113,22 +150,39 @@ const app = new Hono()
         projectIds.length > 0 ? [Query.contains("$id", projectIds)] : []
       );
 
-      const members = await databases.listDocuments(
-        DATABASE_ID,
-        MEMBERS_ID,
-        assigneeIds.length > 0 ? [Query.contains("$id", assigneeIds)] : []
+      const { users } = await createAdminClient();
+      const memberMap = await fetchEnrichedMembersByIds(
+        databases,
+        users,
+        workspaceId,
+        allMemberIdsFromAssignees,
       );
 
-      const assignees = await Promise.all(
-        members.documents.map(async (member) => {
-          const user = await users.get(member.userId);
+      const allTagIds = [
+        ...new Set(
+          tasks.documents.flatMap((task) =>
+            (task.tagIds ?? []).filter((tid) => tid.trim()),
+          ),
+        ),
+      ];
 
-          return {
-            ...member,
-            name: user.name || "No Name",
-            email: user.email,
-          };
-        })
+      const tagMap = await fetchTagsMapForWorkspace(
+        databases,
+        workspaceId,
+        allTagIds,
+      );
+
+      const allSprintIds = [
+        ...new Set(
+          tasks.documents
+            .map((task) => task.sprintId?.trim())
+            .filter((sid): sid is string => Boolean(sid)),
+        ),
+      ];
+      const sprintMap = await fetchSprintsMapByIds(
+        databases,
+        workspaceId,
+        allSprintIds,
       );
 
       const populatedTasks = tasks.documents.map((task) => {
@@ -136,14 +190,21 @@ const app = new Hono()
           (project) => project.$id === task.projectId
         );
 
-        const assignee = assignees.find(
-          (assignee) => assignee.$id === task.assigneeId
-        );
+        const sid = task.sprintId?.trim();
+        let sprintResolved = sid ? sprintMap.get(sid) ?? null : null;
+        if (
+          sprintResolved &&
+          sprintResolved.projectId !== task.projectId
+        ) {
+          sprintResolved = null;
+        }
 
         return {
           ...task,
           project,
-          assignee,
+          sprint: sprintResolved,
+          assignees: orderedAssigneesFromMap(task.assigneeIds, memberMap),
+          tags: orderedTagsFromIds(task.tagIds, tagMap),
         };
       });
 
@@ -162,8 +223,17 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-      const { name, status, workspaceId, projectId, dueDate, assigneeId } =
-        c.req.valid("json");
+      const {
+        name,
+        status,
+        workspaceId,
+        projectId,
+        dueDate,
+        assigneeIds,
+        description,
+        tagIds,
+        sprintId,
+      } = c.req.valid("json");
 
       const member = await getMember({
         databases,
@@ -173,6 +243,38 @@ const app = new Hono()
 
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      if (!isWorkspaceAdmin(member)) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
+      const tagsValid = await validateTaskTagIdsForWorkspace(
+        databases,
+        workspaceId,
+        tagIds,
+      );
+      if (!tagsValid) {
+        return c.json({ error: "Invalid tags" }, 400);
+      }
+
+      const assigneesValid = await validateAssigneeIdsForWorkspace(
+        databases,
+        workspaceId,
+        assigneeIds,
+      );
+      if (!assigneesValid) {
+        return c.json({ error: "Invalid assignees" }, 400);
+      }
+
+      const sprintOk = await validateSprintForProject(
+        databases,
+        sprintId,
+        workspaceId,
+        projectId,
+      );
+      if (!sprintOk) {
+        return c.json({ error: "Invalid sprint" }, 400);
       }
 
       const highestPositionTask = await databases.listDocuments(
@@ -191,22 +293,51 @@ const app = new Hono()
           ? highestPositionTask.documents[0].position + 1000
           : 1000;
 
+      const payload: Record<string, unknown> = {
+        name,
+        status,
+        workspaceId,
+        projectId,
+        dueDate,
+        assigneeIds,
+        position: newPosition,
+        description: description ?? "",
+        tagIds,
+      };
+
+      if (sprintId !== null && sprintId !== undefined && sprintId.trim()) {
+        payload.sprintId = sprintId.trim();
+      }
+
       const task = await databases.createDocument(
         DATABASE_ID,
         TASKS_ID,
         ID.unique(),
-        {
-          name,
-          status,
-          workspaceId,
-          projectId,
-          dueDate,
-          assigneeId,
-          position: newPosition,
-        }
+        payload,
       );
 
-      return c.json({ data: task });
+      const { users } = await createAdminClient();
+      const tags = await fetchTagsOrderedForTask(
+        databases,
+        workspaceId,
+        task.tagIds,
+      );
+
+      const memberMap = await fetchEnrichedMembersByIds(
+        databases,
+        users,
+        workspaceId,
+        task.assigneeIds ?? [],
+      );
+
+      const assignees = orderedAssigneesFromMap(task.assigneeIds, memberMap);
+
+      const sprint = await getSprintForTaskPopulate(
+        databases,
+        task as unknown as Task,
+      );
+
+      return c.json({ data: { ...task, tags, assignees, sprint } });
     }
   )
   .patch(
@@ -216,8 +347,7 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const databases = c.get("databases");
-      const { name, status, description, projectId, dueDate, assigneeId } =
-        c.req.valid("json");
+      const body = c.req.valid("json");
 
       const { taskId } = c.req.param();
 
@@ -237,21 +367,86 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
+      if (body.tagIds !== undefined) {
+        const tagsValid = await validateTaskTagIdsForWorkspace(
+          databases,
+          existingTask.workspaceId,
+          body.tagIds,
+        );
+        if (!tagsValid) {
+          return c.json({ error: "Invalid tags" }, 400);
+        }
+      }
+
+      if (body.assigneeIds !== undefined) {
+        const assigneesValid = await validateAssigneeIdsForWorkspace(
+          databases,
+          existingTask.workspaceId,
+          body.assigneeIds,
+        );
+        if (!assigneesValid) {
+          return c.json({ error: "Invalid assignees" }, 400);
+        }
+      }
+
+      const nextProjectId =
+        body.projectId !== undefined
+          ? body.projectId
+          : existingTask.projectId;
+      const nextSprintId =
+        body.sprintId !== undefined ? body.sprintId : existingTask.sprintId;
+
+      if (body.sprintId !== undefined || body.projectId !== undefined) {
+        const sprintOk = await validateSprintForProject(
+          databases,
+          nextSprintId,
+          existingTask.workspaceId,
+          nextProjectId,
+        );
+        if (!sprintOk) {
+          return c.json({ error: "Invalid sprint" }, 400);
+        }
+      }
+
+      const updates: Record<string, unknown> = {};
+      if (body.name !== undefined) updates.name = body.name;
+      if (body.status !== undefined) updates.status = body.status;
+      if (body.description !== undefined) updates.description = body.description;
+      if (body.projectId !== undefined) updates.projectId = body.projectId;
+      if (body.dueDate !== undefined) updates.dueDate = body.dueDate;
+      if (body.assigneeIds !== undefined) updates.assigneeIds = body.assigneeIds;
+      if (body.tagIds !== undefined) updates.tagIds = body.tagIds;
+      if (body.sprintId !== undefined) updates.sprintId = body.sprintId;
+
       const task = await databases.updateDocument(
         DATABASE_ID,
         TASKS_ID,
         taskId,
-        {
-          name,
-          status,
-          projectId,
-          dueDate,
-          assigneeId,
-          description,
-        }
+        updates,
       );
 
-      return c.json({ data: task });
+      const { users } = await createAdminClient();
+      const tags = await fetchTagsOrderedForTask(
+        databases,
+        existingTask.workspaceId,
+        task.tagIds,
+      );
+
+      const memberMap = await fetchEnrichedMembersByIds(
+        databases,
+        users,
+        existingTask.workspaceId,
+        task.assigneeIds ?? [],
+      );
+
+      const assignees = orderedAssigneesFromMap(task.assigneeIds, memberMap);
+
+      const sprint = await getSprintForTaskPopulate(
+        databases,
+        task as unknown as Task,
+      );
+
+      return c.json({ data: { ...task, tags, assignees, sprint } });
     }
   )
   .get("/:taskId", sessionMiddleware, async (c) => {
@@ -282,25 +477,30 @@ const app = new Hono()
       task.projectId
     );
 
-    const member = await databases.getDocument(
-      DATABASE_ID,
-      MEMBERS_ID,
-      task.assigneeId
+    const memberMap = await fetchEnrichedMembersByIds(
+      databases,
+      users,
+      task.workspaceId,
+      task.assigneeIds ?? [],
     );
 
-    const user = await users.get(member.userId);
+    const assignees = orderedAssigneesFromMap(task.assigneeIds, memberMap);
 
-    const assignee = {
-      ...member,
-      name: user.name || "No Name",
-      email: user.email,
-    };
+    const tags = await fetchTagsOrderedForTask(
+      databases,
+      task.workspaceId,
+      task.tagIds,
+    );
+
+    const sprint = await getSprintForTaskPopulate(databases, task as Task);
 
     return c.json({
       data: {
         ...task,
         project,
-        assignee,
+        assignees,
+        tags,
+        sprint,
       },
     });
   })

@@ -17,14 +17,14 @@ export const MobileSidebar = () => {
   }, [pathname]);
 
   return (
-    <Sheet modal={false} open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant={"secondary"} className="lg:hidden">
           <MenuIcon className="size-4 text-neutral-500" />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0">
-        <SheetTitle></SheetTitle>
+        <SheetTitle className="sr-only">Бічне меню навігації</SheetTitle>
         <Sidebar />
       </SheetContent>
     </Sheet>

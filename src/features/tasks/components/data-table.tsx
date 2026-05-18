@@ -23,13 +23,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
 import {
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
 
@@ -71,20 +71,20 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center pb-3">
         <div className="relative w-full max-w-sm">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">
             <SearchIcon className="w-4 h-4" />
           </span>
           <Input
-            placeholder="Search tasks..."
+            placeholder="Шукати завдання…"
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-            className="pl-9"
+            className="border-neutral-800 bg-neutral-950 pl-9 text-neutral-100 placeholder:text-neutral-500 focus-visible:border-red-900/70 focus-visible:ring-red-600/35"
           />
         </div>
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md border border-neutral-800 bg-neutral-900">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="pl-6 truncate max-w-8 overflow-hidden text-ellipsis whitespace-nowrap"
+                      className="min-w-0 overflow-visible py-2 pl-6 align-middle"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -130,7 +130,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Нічого не знайдено.
                 </TableCell>
               </TableRow>
             )}
@@ -140,12 +140,12 @@ export function DataTable<TData, TValue>({
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-          <p className="text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
+          <p className="text-sm font-medium text-neutral-200">
+            Сторінка {table.getState().pagination.pageIndex + 1} з{" "}
             {table.getPageCount()}
           </p>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Rows per page</p>
+            <p className="text-sm text-neutral-400">Рядків на сторінці</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
@@ -168,23 +168,23 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
 
-        <div className="text-sm text-muted-foreground text-center md:text-left">
+        <div className="text-center text-sm text-neutral-400 md:text-left">
           {table.getFilteredRowModel().rows.length > 0 ? (
             <>
-              Showing{" "}
+              Показано{" "}
               {table.getState().pagination.pageIndex *
                 table.getState().pagination.pageSize +
                 1}{" "}
-              to{" "}
+              –{" "}
               {Math.min(
                 (table.getState().pagination.pageIndex + 1) *
                   table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
+                table.getFilteredRowModel().rows.length,
               )}{" "}
-              of {table.getFilteredRowModel().rows.length} entries
+              із {table.getFilteredRowModel().rows.length}
             </>
           ) : (
-            "No entries"
+            "Немає записів"
           )}
         </div>
 
@@ -195,7 +195,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            First
+            На початок
           </Button>
           <Button
             variant="outline"
@@ -203,7 +203,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Назад
           </Button>
           <Button
             variant="outline"
@@ -211,7 +211,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Далі
           </Button>
           <Button
             variant="outline"
@@ -219,7 +219,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            Last
+            У кінець
           </Button>
         </div>
       </div>

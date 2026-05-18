@@ -26,6 +26,7 @@ import {
 import { createProjectSchema } from "../schemas";
 import { useCreateProject } from "../api/use-create-project";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 
 interface CreateProjectFormProps {
   onCancel?: () => void;
@@ -75,15 +76,15 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
 
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
+      <CardHeader className="flex p-4">
         <CardTitle className="text-xl font-bold">
-          Create a new project
+          Створити новий проєкт
         </CardTitle>
       </CardHeader>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-y-4">
@@ -92,10 +93,10 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project Name</FormLabel>
+                    <FormLabel>Назва проєкту</FormLabel>
 
                     <FormControl>
-                      <Input {...field} placeholder="Enter project name" />
+                      <Input {...field} placeholder="Введіть назву проєкту" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -128,11 +129,11 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                         </Avatar>
                       )}
                       <div className="flex flex-col">
-                        <p className="text-sm">Project Icon</p>
+                        <p className="text-sm">Іконка проєкту</p>
                       </div>
                       <div className="flex flex-col md:flex-row gap-4 items-center">
                         <p className="text-sm text-muted-foreground">
-                          JPG, PNG, SVG, or JPEG, max 1MB
+                          JPG, PNG, SVG, або JPEG, макс. 1MB
                         </p>
 
                         <input
@@ -157,7 +158,7 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                               }
                             }}
                           >
-                            Remove image
+                            Видалити зображення
                           </Button>
                         ) : (
                           <Button
@@ -168,7 +169,7 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                             className="w-fit mt-2"
                             onClick={() => inputRef.current?.click()}
                           >
-                            Upload Image
+                            Завантажити зображення
                           </Button>
                         )}
                       </div>
@@ -177,21 +178,23 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                 )}
               />
             </div>
-            <DottedSeparator className="py-7" />
+            <DottedSeparator className="py-4" />
             <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                size={"lg"}
-                variant={"secondary"}
-                onClick={onCancel}
-                disabled={isPending}
-                className={cn(!onCancel && "invisible")}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" size={"lg"} disabled={isPending}>
-                Create Project
-              </Button>
+                <Button
+                  type="button"
+                  size={"lg"}
+                  variant={"secondary"}
+                  onClick={onCancel}
+                  disabled={isPending}
+                  className={cn(!onCancel && "invisible")}
+                >
+                  Скасувати
+                </Button>
+                <AdminOnlyAction>
+                  <Button type="submit" size={"lg"} disabled={isPending}>
+                    Створити проєкт
+                  </Button>
+                </AdminOnlyAction>
             </div>
           </form>
         </Form>

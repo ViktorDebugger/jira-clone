@@ -3,6 +3,7 @@ import { useCreateProjectModal } from "../hooks/use-create-project-modal";
 import { Project } from "../types";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 import { DottedSeparator } from "@/components/dotted-separator";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,13 +20,15 @@ export const ProjectList = ({ data, total }: ProjectListProps) => {
   const { open: createProject } = useCreateProjectModal();
 
   return (
-    <div className="flex flex-col gap-y-4 col-span-1">
-      <div className="bg-white border rounded-lg p-4">
+    <div className="flex flex-col gap-y-4">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
         <div className="flex items-center justify-between">
-          <p className="text-lg font-semibold">Projects ({total})</p>
-          <Button variant={"secondary"} size={"icon"} onClick={createProject}>
-            <PlusIcon className="size-4 text-neutral-400" />
-          </Button>
+          <p className="text-lg font-semibold text-neutral-100">Проєкти ({total})</p>
+          <AdminOnlyAction>
+            <Button variant={"secondary"} size={"icon"} onClick={createProject}>
+              <PlusIcon className="size-4 text-neutral-400" />
+            </Button>
+          </AdminOnlyAction>
         </div>
         <DottedSeparator className="my-4" />
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -40,7 +43,7 @@ export const ProjectList = ({ data, total }: ProjectListProps) => {
                       className="size-12"
                       fallbackClassName="text-lg"
                     />
-                    <p className="text-lg font-medium truncate">
+                    <p className="text-lg font-medium truncate text-neutral-100">
                       {project.name}
                     </p>
                   </CardContent>
@@ -48,8 +51,8 @@ export const ProjectList = ({ data, total }: ProjectListProps) => {
               </Link>
             </li>
           ))}
-          <li className="text-sm col-span-1 lg:col-span-2 text-muted-foreground text-center hidden first-of-type:block">
-            No projects found
+          <li className="text-sm col-span-1 lg:col-span-2 text-neutral-400 text-center hidden first-of-type:block">
+            Проєкти не знайдено
           </li>
         </ul>
       </div>

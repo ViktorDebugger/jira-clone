@@ -30,24 +30,33 @@ import {
 import { createTaskSchema } from "../schemas";
 import { useCreateTask } from "../api/use-create-task";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
+import { normalizeRichTextBlob, isHtmlContentEmpty } from "@/lib/rich-text-plain";
 import { DatePicker } from "@/components/date-picker";
-import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { TaskStatus } from "../types";
+import {
+  taskStatusLabelsUk,
+  taskStatusesOrdered,
+} from "../status-labels";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
-import { useCurrent } from "@/features/auth/api/use-current";
+import { RichTextEditor } from "@/components/rich-text/rich-text-editor";
+
+import { TaskTagPicker } from "./task-tag-picker";
+import { TaskMemberPicker } from "./task-member-picker";
+import { TaskSprintSelect } from "@/features/sprints/components/task-sprint-select";
 
 interface CreateTaskFormProps {
   onCancel?: () => void;
   projectOptions: { id: string; name: string; imageUrl: string }[];
-  memberOptions: { id: string; name: string; email: string }[];
   status?: TaskStatus | undefined;
+  defaultProjectId?: string;
 }
 
 export const CreateTaskForm = ({
   onCancel,
   projectOptions,
-  memberOptions,
   status,
+  defaultProjectId,
 }: CreateTaskFormProps) => {
   const workspaceId = useWorkspaceId();
 
@@ -62,34 +71,58 @@ export const CreateTaskForm = ({
       name: "",
       status: status || TaskStatus.TODO,
       dueDate: new Date(),
+      description: "<p></p>",
+      assigneeIds: [] as string[],
+      tagIds: [] as string[],
+      projectId: defaultProjectId ?? "",
+      sprintId: null as string | null,
     },
   });
 
+  const watchedProjectId = form.watch("projectId");
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const rawDesc = typeof values.description === "string" ? values.description : "";
+    const description =
+      !rawDesc.trim() || isHtmlContentEmpty(normalizeRichTextBlob(rawDesc))
+        ? ""
+        : rawDesc.trim();
     mutate(
-      { json: { ...values, workspaceId } },
+      {
+        json: {
+          ...values,
+          workspaceId,
+          description,
+          sprintId: values.sprintId ?? null,
+        },
+      },
       {
         onSuccess: () => {
-          form.reset();
+          form.reset({
+            name: "",
+            status: status || TaskStatus.TODO,
+            dueDate: new Date(),
+            description: "<p></p>",
+            assigneeIds: [],
+            tagIds: [],
+            projectId: defaultProjectId ?? "",
+            sprintId: null,
+          });
           onCancel?.();
         },
       }
     );
   };
 
-  const { data: user } = useCurrent();
-
-  if (!user) return;
-
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
-        <CardTitle className="text-xl font-bold">Create a new task</CardTitle>
+      <CardHeader className="flex p-4">
+        <CardTitle className="text-xl font-bold">Створити нове завдання</CardTitle>
       </CardHeader>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         <Form {...form}>
           {/* @ts-expect-error */}
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -100,10 +133,10 @@ export const CreateTaskForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Task Name</FormLabel>
+                    <FormLabel>Назва завдання</FormLabel>
 
                     <FormControl>
-                      <Input {...field} placeholder="Enter task name" />
+                      <Input {...field} placeholder="Введіть назву завдання" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,41 +144,38 @@ export const CreateTaskForm = ({
               />
 
               <FormField
-                name="assigneeId"
+                name="description"
                 // @ts-expect-error
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assignee</FormLabel>
-                    <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select assignee" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <FormMessage />
-                      <SelectContent>
-                        {memberOptions.map((member) => (
-                          <SelectItem key={member.id} value={member.id}>
-                            <div className="flex items-center gap-x-2">
-                              <MemberAvatar
-                                className="size-6"
-                                name={member.name}
-                              />
-                              {member.name}{" "}
-                              {member.email === user.email && (
-                                <span className="text-xs text-muted-foreground">
-                                  (You)
-                                </span>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Опис</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value ? String(field.value) : "<p></p>"}
+                        onChange={field.onChange}
+                        placeholder="Опис завдання (необов'язково)…"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="assigneeIds"
+                // @ts-expect-error
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Виконавці</FormLabel>
+                    <TaskMemberPicker
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      disabled={isPending}
+                    />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -156,29 +186,23 @@ export const CreateTaskForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel>Статус</FormLabel>
                     <Select
                       defaultValue={field.value}
                       onValueChange={field.onChange}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select status" />
+                          <SelectValue placeholder="Оберіть статус" />
                         </SelectTrigger>
                       </FormControl>
                       <FormMessage />
                       <SelectContent>
-                        <SelectItem value={TaskStatus.BACKLOG}>
-                          Backlog
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.IN_PROGRESS}>
-                          In Progress
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.IN_REVIEW}>
-                          In Review
-                        </SelectItem>
-                        <SelectItem value={TaskStatus.TODO}>Todo</SelectItem>
-                        <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
+                        {taskStatusesOrdered.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {taskStatusLabelsUk[s]}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -190,7 +214,7 @@ export const CreateTaskForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Due Date</FormLabel>
+                    <FormLabel>Термін виконання</FormLabel>
                     <FormControl>
                       <DatePicker {...field} />
                     </FormControl>
@@ -205,14 +229,17 @@ export const CreateTaskForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project</FormLabel>
+                    <FormLabel>Проєкт</FormLabel>
                     <Select
                       defaultValue={field.value}
-                      onValueChange={field.onChange}
+                      onValueChange={(next) => {
+                        field.onChange(next);
+                        form.setValue("sprintId", null);
+                      }}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select project" />
+                          <SelectValue placeholder="Оберіть проєкт" />
                         </SelectTrigger>
                       </FormControl>
                       <FormMessage />
@@ -234,8 +261,46 @@ export const CreateTaskForm = ({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                name="sprintId"
+                // @ts-expect-error
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Спринт</FormLabel>
+                    <FormControl>
+                      <TaskSprintSelect
+                        workspaceId={workspaceId}
+                        projectId={watchedProjectId}
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="tagIds"
+                // @ts-expect-error
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Теги</FormLabel>
+                    <TaskTagPicker
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      disabled={isPending}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <DottedSeparator className="py-7" />
+            <DottedSeparator className="py-4" />
             <div className="flex items-center justify-between">
               <Button
                 type="button"
@@ -245,11 +310,13 @@ export const CreateTaskForm = ({
                 disabled={isPending}
                 className={cn(!onCancel && "invisible")}
               >
-                Cancel
+                Скасувати
               </Button>
-              <Button type="submit" size={"lg"} disabled={isPending}>
-                Create Task
-              </Button>
+              <AdminOnlyAction>
+                <Button type="submit" size={"lg"} disabled={isPending}>
+                  Створити завдання
+                </Button>
+              </AdminOnlyAction>
             </div>
           </form>
         </Form>

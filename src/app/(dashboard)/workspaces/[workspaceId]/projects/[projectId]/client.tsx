@@ -8,6 +8,7 @@ import { useGetProject } from "@/features/projects/api/use-get-project";
 import { useGetProjectAnalytics } from "@/features/projects/api/use-get-project-analytics";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { useProjectId } from "@/features/projects/hooks/use-project-id";
+import { ProjectSprintsSection } from "@/features/sprints/components/project-sprints-section";
 import { TaskViewSwitcher } from "@/features/tasks/components/task-view-switcher";
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
@@ -27,7 +28,7 @@ export const ProjectIdClient = () => {
   }
 
   if (!project) {
-    return <PageError message="Project not found" />;
+    return <PageError message="Проєкт не знайдено" />;
   }
 
   return (
@@ -47,12 +48,13 @@ export const ProjectIdClient = () => {
               href={`/workspaces/${project.workspaceId}/projects/${project.$id}/settings`}
             >
               <PencilIcon className="size-4 mr-2" />
-              Edit Project
+              Редагувати проєкт
             </Link>
           </Button>
         </div>
       </div>
       {analytics && <Analytics data={analytics} />}
+      <ProjectSprintsSection workspaceId={project.workspaceId} projectId={project.$id} />
       <TaskViewSwitcher hideProjectFilter />
     </div>
   );

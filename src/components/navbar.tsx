@@ -6,18 +6,23 @@ import { usePathname } from "next/navigation";
 
 const pathnameMap = {
   tasks: {
-    title: "My Tasks",
-    description: "View all of your tasks here",
+    title: "Мої завдання",
+    description: "Переглядайте всі ваші завдання тут",
   },
   projects: {
-    title: "My Project",
-    description: "View tasks of your project here",
+    title: "Мій проєкт",
+    description: "Переглядайте завдання вашого проєкту тут",
+  },
+  analytics: {
+    title: "Аналітика робочого простору",
+    description:
+      "Графіки за завданнями. Оберіть проєкти, щоб звузити дані.",
   },
 };
 
 const defaultMap = {
-  title: "Home",
-  description: "Monitor all of your projects and tasks here",
+  title: "Головна",
+  description: "Відстежуйте всі ваші проєкти та завдання тут",
 };
 
 export const Navbar = () => {
@@ -30,8 +35,8 @@ export const Navbar = () => {
   return (
     <nav className="pt-4 px-6 flex items-center justify-between">
       <div className="flex-col hidden lg:flex">
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="text-muted-foreground">{description}</p>
+        <h1 className="text-2xl font-semibold text-neutral-100">{title}</h1>
+        <p className="text-neutral-400">{description}</p>
       </div>
       <MobileSidebar />
       <UserButton />

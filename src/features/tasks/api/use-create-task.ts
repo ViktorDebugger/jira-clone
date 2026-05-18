@@ -21,14 +21,17 @@ export const useCreateTask = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Task created");
+      toast.success("Завдання створено");
 
       queryClient.invalidateQueries({ queryKey: ["workspace-analytics"] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-analytics-charts"],
+      });
       queryClient.invalidateQueries({ queryKey: ["project-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: () => {
-      toast.error("Failed to create task");
+      toast.error("Не вдалося створити завдання");
     },
   });
 

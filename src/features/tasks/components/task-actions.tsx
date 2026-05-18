@@ -10,6 +10,7 @@ import { useDeleteTask } from "../api/use-delete-task";
 import { useRouter } from "next/navigation";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useEditTaskModal } from "../hooks/use-edit-task-modal";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 
 interface TaskActionsProps {
   id: string;
@@ -25,8 +26,8 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
   const { open } = useEditTaskModal();
 
   const [ConfirmDialog, confirm] = useConfirm(
-    "Delete task",
-    "This action cannot be undone",
+    "Видалити завдання",
+    "Цю дію неможливо скасувати",
     "destructive"
   );
 
@@ -58,30 +59,32 @@ export const TaskActions = ({ id, projectId, children }: TaskActionsProps) => {
             className="font-medium p-[10px]"
           >
             <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
-            Task Details
+            Деталі завдання
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={onOpenProject}
             className="font-medium p-[10px]"
           >
             <ExternalLinkIcon className="size-4 mr-2 stroke-2" />
-            Open Project
+            Відкрити проєкт
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => open(id)}
             className="font-medium p-[10px]"
           >
             <PencilIcon className="size-4 mr-2 stroke-2" />
-            Edit Task
+            Редагувати
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={onDelete}
-            disabled={isPending}
-            className="font-amber-700 focus:text-amber-700 font-medium p-[10px]"
-          >
-            <TrashIcon className="size-4 mr-2 stroke-2" />
-            Delete Task
-          </DropdownMenuItem>
+          <AdminOnlyAction>
+            <DropdownMenuItem
+              onClick={onDelete}
+              disabled={isPending}
+              className="font-amber-700 focus:text-amber-700 font-medium p-[10px]"
+            >
+              <TrashIcon className="size-4 mr-2 stroke-2" />
+              Видалити
+            </DropdownMenuItem>
+          </AdminOnlyAction>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

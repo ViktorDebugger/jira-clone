@@ -28,6 +28,7 @@ import { updateProjectSchema } from "../schemas";
 import { useUpdateProject } from "../api/use-update-project";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useDeleteProject } from "../api/use-delete-project";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 
 interface EditProjectFormProps {
   onCancel?: () => void;
@@ -44,8 +45,8 @@ export const EditProjectForm = ({
     useDeleteProject();
 
   const [DeleteDialog, confirmDelete] = useConfirm(
-    "Delete Project",
-    "This action cannot be undone.",
+    "Видалити проєкт",
+    "Цю дію неможливо скасувати.",
     "destructive"
   );
 
@@ -96,10 +97,11 @@ export const EditProjectForm = ({
     <div className="flex flex-col gap-y-4">
       <DeleteDialog />
       <Card className="w-full h-full border-none shadow-none">
-        <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
+        <CardHeader className="flex flex-row flex-wrap items-center gap-3 space-y-0 p-4">
           <Button
             size={"sm"}
             variant={"secondary"}
+            className="shrink-0"
             onClick={
               onCancel
                 ? onCancel
@@ -110,16 +112,16 @@ export const EditProjectForm = ({
             }
           >
             <ArrowLeftIcon className="size-4 mr-2" />
-            Back
+            Назад
           </Button>
-          <CardTitle className="text-xl font-bold">
-            Create a new workspace
+          <CardTitle className="min-w-0 flex-1 text-xl font-bold text-neutral-100">
+            Редагувати проєкт
           </CardTitle>
         </CardHeader>
-        <div className="px-7">
+        <div className="px-4">
           <DottedSeparator />
         </div>
-        <CardContent className="p-7">
+        <CardContent className="p-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-y-4">
@@ -128,10 +130,10 @@ export const EditProjectForm = ({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Project Name</FormLabel>
+                    <FormLabel>Назва проєкту</FormLabel>
 
-                      <FormControl>
-                        <Input {...field} placeholder="Enter project name" />
+                    <FormControl>
+                      <Input {...field} placeholder="Введіть назву проєкту" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -164,12 +166,12 @@ export const EditProjectForm = ({
                           </Avatar>
                         )}
                         <div className="flex flex-col">
-                          <p className="text-sm">Project Icon</p>
-                        </div>
-                        <div className="flex flex-col md:flex-row gap-4 items-center">
-                          <p className="text-sm text-muted-foreground">
-                            JPG, PNG, SVG, or JPEG, max 1MB
-                          </p>
+                        <p className="text-sm">Іконка проєкту</p>
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <p className="text-sm text-muted-foreground">
+                          JPG, PNG, SVG, або JPEG, макс. 1MB
+                        </p>
 
                           <input
                             className="hidden"
@@ -193,19 +195,19 @@ export const EditProjectForm = ({
                                 }
                               }}
                             >
-                              Remove image
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              disabled={isPending}
-                              variant={"teritary"}
-                              size={"xs"}
-                              className="w-fit mt-2"
-                              onClick={() => inputRef.current?.click()}
-                            >
-                              Upload Image
-                            </Button>
+                            Видалити зображення
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"teritary"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => inputRef.current?.click()}
+                          >
+                            Завантажити зображення
+                          </Button>
                           )}
                         </div>
                       </div>
@@ -213,7 +215,7 @@ export const EditProjectForm = ({
                   )}
                 />
               </div>
-              <DottedSeparator className="py-7" />
+              <DottedSeparator className="py-4" />
               <div className="flex items-center justify-between">
                 <Button
                   type="button"
@@ -223,10 +225,10 @@ export const EditProjectForm = ({
                   disabled={isPending}
                   className={cn(!onCancel && "invisible")}
                 >
-                  Cancel
+                  Скасувати
                 </Button>
                 <Button type="submit" size={"lg"} disabled={isPending}>
-                  Save Changes
+                  Зберегти зміни
                 </Button>
               </div>
             </form>
@@ -235,24 +237,27 @@ export const EditProjectForm = ({
       </Card>
 
       <Card className="w-full h-full border-none shadow-none">
-        <CardContent className="p-7">
+        <CardContent className="p-4">
           <div className="flex flex-col">
-            <h3 className="font-bold">Danger Zone</h3>
+            <h3 className="font-bold">Небезпечна зона</h3>
             <p className="text-sm text-muted-foreground">
-              Deleting a project is irreversible and will remove all associated
-              data
+              {
+                "Видалення проєкту є незворотнім і призведе до видалення всіх пов'язаних з ним даних"
+              }
             </p>
-            <DottedSeparator className="py-7" />
-            <Button
-              className="mt-6 w-fit ml-auto"
-              size={"sm"}
-              variant={"destructive"}
-              type="button"
-              disabled={isPending || isDeletingProject}
-              onClick={handleDelete}
-            >
-              Delete Project
-            </Button>
+            <DottedSeparator className="py-4" />
+            <AdminOnlyAction className="mt-6 w-fit ml-auto">
+              <Button
+                className="w-fit"
+                size={"sm"}
+                variant={"destructive"}
+                type="button"
+                disabled={isPending || isDeletingProject}
+                onClick={handleDelete}
+              >
+                Видалити проєкт
+              </Button>
+            </AdminOnlyAction>
           </div>
         </CardContent>
       </Card>

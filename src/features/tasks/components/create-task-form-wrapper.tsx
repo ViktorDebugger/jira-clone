@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { useGetMembers } from "@/features/members/api/use-get-members";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { Loader } from "lucide-react";
+import { useParams } from "next/navigation";
 import { CreateTaskForm } from "./create-task-form";
 import { TaskStatus } from "../types";
 
@@ -16,12 +16,11 @@ export const CreateTaskFormWrapper = ({
   status,
 }: CreateTaskFormWrapperProps) => {
   const workspaceId = useWorkspaceId();
+  const params = useParams();
+  const defaultProjectId =
+    typeof params.projectId === "string" ? params.projectId : undefined;
 
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
-    workspaceId,
-  });
-
-  const { data: members, isLoading: isLoadingMembers } = useGetMembers({
     workspaceId,
   });
 
@@ -31,15 +30,7 @@ export const CreateTaskFormWrapper = ({
     imageUrl: project.imageUrl,
   }));
 
-  const memberOptions = members?.documents.map((member) => ({
-    id: member.$id,
-    name: member.name,
-    email: member.email,
-  }));
-
-  const isLoading = isLoadingMembers || isLoadingProjects;
-
-  if (isLoading) {
+  if (isLoadingProjects) {
     return (
       <Card className="w-full h-[714px] border-none shadow-none">
         <CardContent className="flex items-center justify-center h-full">
@@ -53,8 +44,8 @@ export const CreateTaskFormWrapper = ({
     <CreateTaskForm
       onCancel={onCancel}
       projectOptions={projectOptions ?? []}
-      memberOptions={memberOptions ?? []}
       status={status}
+      defaultProjectId={defaultProjectId}
     />
   );
 };

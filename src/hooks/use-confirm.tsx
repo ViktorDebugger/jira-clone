@@ -45,7 +45,7 @@ export const useConfirm = (
   const ConfirmationDialog = () => (
     <ResponsiveModal open={promise !== null} onOpenChange={handleClose}>
       <Card className="w-full h-full border-none shadow-none">
-        <CardContent className="pt-8">
+        <CardContent className="pt-8 pb-8">
           <CardHeader className="p-0">
             <CardTitle>{title}</CardTitle>
             <CardDescription>{message}</CardDescription>
@@ -56,7 +56,7 @@ export const useConfirm = (
               variant={"outline"}
               className="w-full lg:w-auto"
             >
-              Cancel
+              Скасувати
             </Button>
 
             <Button
@@ -64,7 +64,7 @@ export const useConfirm = (
               variant={variant}
               className="w-full lg:w-auto"
             >
-              Confirm
+              Підтвердити
             </Button>
           </div>
         </CardContent>

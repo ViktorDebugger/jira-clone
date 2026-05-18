@@ -2,6 +2,12 @@ import { redirect } from "next/navigation";
 
 import { getCurrent } from "@/features/auth/queries";
 import { getWorkspaces } from "@/features/workspaces/queries";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export const metadata = pageMetadata(
+  "Головна",
+  "Перейдіть до робочого простору FlowForge.",
+);
 
 export default async function Home() {
   const user = await getCurrent();

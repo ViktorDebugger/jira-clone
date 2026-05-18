@@ -9,7 +9,7 @@ import { Member } from "@/features/members/types";
 
 interface EventCardProps {
   title: string;
-  assignee: Member;
+  assignees?: Member[];
   project: Project;
   status: TaskStatus;
   id: string;
@@ -25,7 +25,7 @@ const statusColorMap: Record<TaskStatus, string> = {
 
 export const EventCard = ({
   title,
-  assignee,
+  assignees,
   project,
   status,
   id,
@@ -44,7 +44,7 @@ export const EventCard = ({
       <div
         onClick={onClick}
         className={cn(
-          "p-1.5 text-xs bg-white text-primary truncate border border-l-4 rounded-md flex flex-col gap-y-1.5 cursor-pointer hover:opacity-75 transition",
+          "p-1.5 text-xs truncate border border-neutral-700 border-l-4 bg-neutral-900 text-neutral-100 rounded-md flex flex-col gap-y-1.5 cursor-pointer hover:opacity-75 transition",
           statusColorMap[status]
         )}
       >
@@ -52,7 +52,21 @@ export const EventCard = ({
           {title}
         </p>
         <div className="flex items-center gap-x-3">
-          <MemberAvatar name={assignee?.name} />
+          {assignees && assignees.length > 0 ? (
+            <>
+              <div className="flex items-center gap-1">
+                <MemberAvatar name={assignees[0]?.name} />
+                {assignees.length > 1 ? (
+                  <span className="text-[10px] text-neutral-400" aria-hidden>
+                    +{assignees.length - 1}
+                  </span>
+                ) : null}
+              </div>
+              <span className="sr-only">
+                {assignees.map((m) => m.name).join(", ")}
+              </span>
+            </>
+          ) : null}
           <div className="size-1 rounded-full bg-neutral-300" />
           <ProjectAvatar name={project?.name} image={project?.imageUrl} />
         </div>

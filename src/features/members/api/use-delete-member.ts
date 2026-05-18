@@ -28,11 +28,11 @@ export const useDeleteMember = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Member deleted");
+      toast.success("Учасника видалено з робочого простору");
       queryClient.invalidateQueries({ queryKey: ["members"] });
     },
     onError: () => {
-      toast.error("Failed to delete member");
+      toast.error("Не вдалося видалити учасника");
     },
   });
 

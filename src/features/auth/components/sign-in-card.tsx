@@ -46,13 +46,13 @@ export const SignInCard = () => {
 
   return (
     <Card className="w-full h-full md:w-[487px] border-none shadow-none">
-      <CardHeader className="flex items-center justify-center text-center p-7">
-        <CardTitle className="text-2xl">Welcome back!</CardTitle>
+      <CardHeader className="flex items-center justify-center text-center p-4">
+        <CardTitle className="text-2xl">З поверненням!</CardTitle>
       </CardHeader>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         <Form {...form}>
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
@@ -64,7 +64,7 @@ export const SignInCard = () => {
                     <Input
                       {...field}
                       type="email"
-                      placeholder="Enter email address"
+                      placeholder="Введіть електронну пошту"
                     />
                   </FormControl>
                   <FormMessage />
@@ -80,7 +80,7 @@ export const SignInCard = () => {
                     <Input
                       {...field}
                       type="password"
-                      placeholder="Enter password"
+                      placeholder="Введіть пароль"
                     />
                   </FormControl>
                   <FormMessage />
@@ -88,15 +88,15 @@ export const SignInCard = () => {
               )}
             />
             <Button disabled={isPending} size="lg" className="w-full">
-              Login
+              Увійти
             </Button>
           </form>
         </Form>
       </CardContent>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex flex-col gap-y-4">
+      <CardContent className="flex flex-col gap-y-4 p-4">
         <Button
           onClick={() => signUpWithGoogle()}
           disabled={isPending}
@@ -105,7 +105,7 @@ export const SignInCard = () => {
           className="w-full"
         >
           <FcGoogle className="mr-2 size-5" />
-          Login with Google
+          Увійти через Google
         </Button>
         <Button
           onClick={() => signUpWithGithub()}
@@ -115,17 +115,17 @@ export const SignInCard = () => {
           className="w-full"
         >
           <FaGithub className="mr-2 size-5" />
-          Login with Github
+          Увійти через Github
         </Button>
       </CardContent>
-      <div className="py-7">
+      <div className="px-4 py-2">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex items-center justify-center">
+      <CardContent className="flex items-center justify-center px-4 pb-6 pt-2">
         <p>
-          Don&apos;t have an account?
+          Немає акаунту?
           <Link href="/sign-up">
-            <span className="text-blue-700">&nbsp;Sign Up</span>
+            <span className="text-red-500">&nbsp;Зареєструватися</span>
           </Link>
         </p>
       </CardContent>

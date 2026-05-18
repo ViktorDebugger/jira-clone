@@ -48,14 +48,14 @@ export const EditWorkspaceForm = ({
     useResetInviteCode();
 
   const [DeleteDialog, confirmDelete] = useConfirm(
-    "Delete Workspace",
-    "This action cannot be undone.",
+    "Видалити робочий простір",
+    "Цю дію неможливо скасувати.",
     "destructive"
   );
 
   const [ResetDialog, confirmReset] = useConfirm(
-    "Reset invite link",
-    "This will invalidate the current invite link.",
+    "Скинути посилання-запрошення",
+    "Це зробить поточне посилання-запрошення недійсним.",
     "destructive"
   );
 
@@ -118,7 +118,7 @@ export const EditWorkspaceForm = ({
   const handleCopyInviteLink = () => {
     navigator.clipboard
       .writeText(fullInviteLink)
-      .then(() => toast.success("Invite link copied to the clipboard"));
+      .then(() => toast.success("Посилання-запрошення скопійовано в буфер обміну"));
   };
 
   return (
@@ -126,10 +126,11 @@ export const EditWorkspaceForm = ({
       <DeleteDialog />
       <ResetDialog />
       <Card className="w-full h-full border-none shadow-none">
-        <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
+        <CardHeader className="flex flex-row flex-wrap items-center gap-3 space-y-0 p-4">
           <Button
             size={"sm"}
             variant={"secondary"}
+            className="shrink-0"
             onClick={
               onCancel
                 ? onCancel
@@ -137,16 +138,16 @@ export const EditWorkspaceForm = ({
             }
           >
             <ArrowLeftIcon className="size-4 mr-2" />
-            Back
+            Назад
           </Button>
-          <CardTitle className="text-xl font-bold">
-            Create a new workspace
+          <CardTitle className="min-w-0 flex-1 text-xl font-bold text-neutral-100">
+            Редагувати робочий простір
           </CardTitle>
         </CardHeader>
-        <div className="px-7">
+        <div className="px-4">
           <DottedSeparator />
         </div>
-        <CardContent className="p-7">
+        <CardContent className="p-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-y-4">
@@ -155,10 +156,10 @@ export const EditWorkspaceForm = ({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Workspace Name</FormLabel>
+                    <FormLabel>Назва робочого простору</FormLabel>
 
-                      <FormControl>
-                        <Input {...field} placeholder="Enter workspace name" />
+                    <FormControl>
+                      <Input {...field} placeholder="Введіть назву робочого простору" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -191,12 +192,12 @@ export const EditWorkspaceForm = ({
                           </Avatar>
                         )}
                         <div className="flex flex-col">
-                          <p className="text-sm">Workspace Icon</p>
-                        </div>
-                        <div className="flex flex-col md:flex-row gap-4 items-center">
-                          <p className="text-sm text-muted-foreground">
-                            JPG, PNG, SVG, or JPEG, max 1MB
-                          </p>
+                        <p className="text-sm">Іконка робочого простору</p>
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <p className="text-sm text-muted-foreground">
+                          JPG, PNG, SVG, або JPEG, макс. 1MB
+                        </p>
                           <input
                             className="hidden"
                             type="file"
@@ -219,19 +220,19 @@ export const EditWorkspaceForm = ({
                                 }
                               }}
                             >
-                              Remove image
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              disabled={isPending}
-                              variant={"teritary"}
-                              size={"xs"}
-                              className="w-fit mt-2"
-                              onClick={() => inputRef.current?.click()}
-                            >
-                              Upload Image
-                            </Button>
+                            Видалити зображення
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            disabled={isPending}
+                            variant={"teritary"}
+                            size={"xs"}
+                            className="w-fit mt-2"
+                            onClick={() => inputRef.current?.click()}
+                          >
+                            Завантажити зображення
+                          </Button>
                           )}
                         </div>
                       </div>
@@ -239,7 +240,7 @@ export const EditWorkspaceForm = ({
                   )}
                 />
               </div>
-              <DottedSeparator className="py-7" />
+              <DottedSeparator className="py-4" />
               <div className="flex items-center justify-between">
                 <Button
                   type="button"
@@ -249,10 +250,10 @@ export const EditWorkspaceForm = ({
                   disabled={isPending}
                   className={cn(!onCancel && "invisible")}
                 >
-                  Cancel
+                  Скасувати
                 </Button>
                 <Button type="submit" size={"lg"} disabled={isPending}>
-                  Save Changes
+                  Зберегти зміни
                 </Button>
               </div>
             </form>
@@ -260,11 +261,11 @@ export const EditWorkspaceForm = ({
         </CardContent>
       </Card>
       <Card className="w-full h-full border-none shadow-none">
-        <CardContent className="p-7">
+        <CardContent className="p-4">
           <div className="flex flex-col">
-            <h3 className="font-bold">Invite Members</h3>
+            <h3 className="font-bold">Запросити учасників</h3>
             <p className="text-sm text-muted-foreground">
-              Use the invite link to add members to your workspace.
+              Використовуйте посилання-запрошення, щоб додати учасників до вашого робочого простору.
             </p>
             <div className="mt-4">
               <div className="flex items-center gap-x-2">
@@ -279,7 +280,7 @@ export const EditWorkspaceForm = ({
                 </Button>
               </div>
             </div>
-            <DottedSeparator className="py-7" />
+            <DottedSeparator className="py-4" />
             <Button
               className="mt-6 w-fit ml-auto"
               size={"sm"}
@@ -288,20 +289,21 @@ export const EditWorkspaceForm = ({
               disabled={isPending || isResettingsInviteCode}
               onClick={handleResetInviteCode}
             >
-              Reset invite link
+              Скинути посилання-запрошення
             </Button>
           </div>
         </CardContent>
       </Card>
       <Card className="w-full h-full border-none shadow-none">
-        <CardContent className="p-7">
+        <CardContent className="p-4">
           <div className="flex flex-col">
-            <h3 className="font-bold">Danger Zone</h3>
+            <h3 className="font-bold">Небезпечна зона</h3>
             <p className="text-sm text-muted-foreground">
-              Deleting a workspace is irreversible and will remove all
-              associated data
+              {
+                "Видалення робочого простору є незворотнім і призведе до видалення всіх пов'язаних з ним даних"
+              }
             </p>
-            <DottedSeparator className="py-7" />
+            <DottedSeparator className="py-4" />
             <Button
               className="mt-6 w-fit ml-auto"
               size={"sm"}
@@ -310,7 +312,7 @@ export const EditWorkspaceForm = ({
               disabled={isPending || isDeletingWorkspace}
               onClick={handleDelete}
             >
-              Delete Workspace
+              Видалити робочий простір
             </Button>
           </div>
         </CardContent>

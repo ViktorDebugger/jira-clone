@@ -27,12 +27,12 @@ export const useDeleteWorkspace = () => {
       return await responce.json();
     },
     onSuccess: ({ data }) => {
-      toast.success("Workspace deleted");
+      toast.success("Робочий простір видалено");
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       queryClient.invalidateQueries({ queryKey: ["workspace", data.$id] });
     },
     onError: () => {
-      toast.error("Failed to delete workspace");
+      toast.error("Не вдалося видалити робочий простір");
     },
   });
 

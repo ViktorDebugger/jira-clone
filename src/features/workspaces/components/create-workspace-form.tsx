@@ -69,15 +69,15 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
 
   return (
     <Card className="w-full h-full border-none shadow-none">
-      <CardHeader className="flex p-7">
+      <CardHeader className="flex p-4">
         <CardTitle className="text-xl font-bold">
-          Create a new workspace
+          Створити новий робочий простір
         </CardTitle>
       </CardHeader>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-y-4">
@@ -86,10 +86,10 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workspace Name</FormLabel>
+                    <FormLabel>Назва робочого простору</FormLabel>
 
                     <FormControl>
-                      <Input {...field} placeholder="Enter workspace name" />
+                      <Input {...field} placeholder="Введіть назву робочого простору" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,11 +122,11 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                         </Avatar>
                       )}
                       <div className="flex flex-col">
-                        <p className="text-sm">Workspace Icon</p>
+                        <p className="text-sm">Іконка робочого простору</p>
                       </div>
                       <div className="flex flex-col md:flex-row gap-4 items-center">
                         <p className="text-sm text-muted-foreground">
-                          JPG, PNG, SVG, or JPEG, max 1MB
+                          JPG, PNG, SVG, або JPEG, макс. 1MB
                         </p>
                         <input
                           className="hidden"
@@ -150,7 +150,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                               }
                             }}
                           >
-                            Remove image
+                            Видалити зображення
                           </Button>
                         ) : (
                           <Button
@@ -161,7 +161,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                             className="w-fit mt-2"
                             onClick={() => inputRef.current?.click()}
                           >
-                            Upload Image
+                            Завантажити зображення
                           </Button>
                         )}
                       </div>
@@ -170,21 +170,21 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                 )}
               />
             </div>
-            <DottedSeparator className="py-7" />
+            <DottedSeparator className="py-4" />
             <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                size={"lg"}
-                variant={"secondary"}
-                onClick={onCancel}
-                disabled={isPending}
-                className={cn(!onCancel && "invisible")}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" size={"lg"} disabled={isPending}>
-                Create Workspace
-              </Button>
+                <Button
+                  type="button"
+                  size={"lg"}
+                  variant={"secondary"}
+                  onClick={onCancel}
+                  disabled={isPending}
+                  className={cn(!onCancel && "invisible")}
+                >
+                  Скасувати
+                </Button>
+                <Button type="submit" size={"lg"} disabled={isPending}>
+                  Створити робочий простір
+                </Button>
             </div>
           </form>
         </Form>

@@ -24,13 +24,13 @@ export const useLogout = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Loggen out");
+      toast.success("Ви вийшли з облікового запису");
       router.refresh();
 
       queryClient.invalidateQueries();
     },
     onError: () => {
-      toast.error("Failed to log out");
+      toast.error("Не вдалося вийти");
     },
   });
 

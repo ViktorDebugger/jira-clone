@@ -10,9 +10,11 @@ export const OverviewProperty = ({
   return (
     <div className="flex items-start gap-x-2">
       <div className="min-w-[100px]">
-        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="text-sm text-neutral-500">{label}</p>
       </div>
-      <div className="flex items-center gap-x-2">{children}</div>
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2">
+        {children}
+      </div>
     </div>
   );
 };

@@ -23,12 +23,12 @@ export const useLogin = () => {
       return await responce.json();
     },
     onSuccess: () => {
-      toast.success("Logged in");
+      toast.success("Вхід успішний");
       router.refresh();
       queryClient.invalidateQueries({ queryKey: ["current"] });
     },
     onError: () => {
-      toast.error("Failed to log in");
+      toast.error("Не вдалося увійти");
     },
   });
 

@@ -29,15 +29,18 @@ export const useUpdateTask = () => {
       return await responce.json();
     },
     onSuccess: ({ data }) => {
-      toast.success("Task updated");
+      toast.success("Завдання оновлено");
 
       queryClient.invalidateQueries({ queryKey: ["workspace-analytics"] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-analytics-charts"],
+      });
       queryClient.invalidateQueries({ queryKey: ["project-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["task", data.$id] });
     },
     onError: () => {
-      toast.error("Failed to update task");
+      toast.error("Не вдалося оновити завдання");
     },
   });
 

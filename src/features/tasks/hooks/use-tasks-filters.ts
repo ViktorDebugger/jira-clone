@@ -1,4 +1,9 @@
-import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryStates,
+} from "nuqs";
 
 import { TaskStatus } from "../types";
 
@@ -9,5 +14,6 @@ export const useTaskFilters = () => {
     assigneeId: parseAsString,
     search: parseAsString,
     dueDate: parseAsString,
+    tagIds: parseAsArrayOf(parseAsString),
   });
 };

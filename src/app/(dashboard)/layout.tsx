@@ -4,6 +4,7 @@ import { CreateProjectModal } from "@/features/projects/components/create-projec
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
+import { CreateTagModal } from "@/features/tags/components/create-tag-modal";
 import { EditTaskModal } from "@/features/tasks/components/edit-task-modal";
 
 interface DashboardLayoutProps {
@@ -12,10 +13,11 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <CreateWorkspaceModal />
       <CreateProjectModal />
       <CreateTaskModal />
+      <CreateTagModal />
       <EditTaskModal />
       <div className="flex w-full h-full">
         <div className="fixed left-0 top-0 hidden lg:block lg:w-[264px] h-full overflow-y-auto">

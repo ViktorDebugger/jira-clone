@@ -1,26 +1,26 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all disabled:pointer-events-none disabled:bg-neutral-100 disabled:from-neutral-100 disabled:to-neutral-100 disable:text-neutral-300 border border-neutral-200 shadow-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border border-neutral-800 text-sm font-semibold shadow-sm outline-none transition-all focus-visible:border-neutral-700 focus-visible:ring-[3px] focus-visible:ring-red-900/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500 disabled:opacity-70 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 aria-invalid:border-destructive aria-invalid:ring-destructive/20",
   {
     variants: {
       variant: {
         primary:
-          "bg-gradient-to-b from-blue-600 to-blue-700 text-primary-foreground hover:from-blue-700 hover:to-blue-700",
+          "bg-red-600 text-white hover:bg-red-700",
         destructive:
-          "bg-gradient-to-b from-amber-600 to-amber-700 text-destructive-foreground hover:from-amber-700 hover:to-amber-700",
+          "border-red-800 bg-red-950 text-red-50 shadow-[0_0_0_1px_rgba(185,28,28,0.35)] hover:border-red-600 hover:bg-red-900 focus-visible:border-red-500 focus-visible:ring-red-600/45",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-white text-black hover:bg-neutral-100",
+          "border bg-neutral-900 border-neutral-800 text-neutral-200 shadow-xs hover:bg-neutral-800 hover:text-white",
+        secondary: "bg-neutral-800 text-neutral-200 hover:bg-neutral-700",
         ghost:
-          "border-transparent shadow-none hover:bg-accent hover:text-accent-foreground",
-        muted: "bg-neutral-200 text-neutral-600 hover:bg-neutral-200/80",
-        teritary: "bg-blue-100 text-blue-600 border-transparent hover:bg-blue-200 shadow-none"
+          "border-transparent shadow-none hover:bg-neutral-800 hover:text-neutral-200 text-neutral-400",
+        muted: "bg-neutral-800 text-neutral-400 hover:bg-neutral-700",
+        teritary:
+          "border border-dashed border-neutral-600 bg-neutral-900 text-neutral-200 shadow-none hover:border-red-900/70 hover:bg-neutral-800 hover:text-neutral-50",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-3",
@@ -34,8 +34,8 @@ const buttonVariants = cva(
       variant: "primary",
       size: "default",
     },
-  }
-)
+  },
+);
 
 function Button({
   className,
@@ -45,9 +45,9 @@ function Button({
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
+    asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : "button";
 
   return (
     <Comp
@@ -55,7 +55,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };

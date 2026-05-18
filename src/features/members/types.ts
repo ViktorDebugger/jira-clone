@@ -5,6 +5,11 @@ export enum MemberRole {
   MEMBER = "MEMBER",
 }
 
+export const memberRoleLabelsUk: Record<MemberRole, string> = {
+  [MemberRole.ADMIN]: "Адміністратор",
+  [MemberRole.MEMBER]: "Учасник",
+};
+
 export type Member = Models.Document & {
   workspaceId: string;
   name: string;

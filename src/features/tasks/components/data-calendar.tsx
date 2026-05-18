@@ -49,9 +49,9 @@ const CustomToolbar = ({ date, onNavigate }: CustomToolbarProps) => {
       >
         <ChevronLeftIcon className="size-4" />
       </Button>
-      <div className="flex items-center bordeer border-input rounded-md px-3 py-2 h-8 justify-center w-full lg:w-auto">
-        <CalendarIcon className="size-4 mr-2" />
-        <p className="text-sm">({format(date, "MMMM yyyy")})</p>
+      <div className="flex items-center border border-neutral-800 rounded-md px-3 py-2 h-8 justify-center w-full lg:w-auto">
+        <CalendarIcon className="size-4 mr-2 text-neutral-400" />
+        <p className="text-sm text-neutral-100">({format(date, "MMMM yyyy")})</p>
       </div>
       <Button
         onClick={() => onNavigate("NEXT")}
@@ -74,7 +74,7 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
     end: new Date(task.dueDate),
     title: task.name,
     project: task.project,
-    assignee: task.assignee,
+    assignees: task.assignees,
     status: task.status,
     id: task.$id,
   }));
@@ -111,7 +111,7 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
               <EventCard
                 id={event.id}
                 title={event.title}
-                assignee={event.assignee!}
+                assignees={event.assignees}
                 project={event.project!}
                 status={event.status}
               />

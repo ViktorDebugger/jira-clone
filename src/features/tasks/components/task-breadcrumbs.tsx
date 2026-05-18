@@ -5,6 +5,7 @@ import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { ChevronRightIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../../../components/ui/button";
+import { AdminOnlyAction } from "@/features/workspaces/components/admin-only-action";
 import { useDeleteTask } from "@/features/tasks/api/use-delete-task";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
@@ -20,8 +21,8 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
 
   const { mutate, isPending } = useDeleteTask();
   const [ConfirmDialog, confirm] = useConfirm(
-    "Delete task",
-    "This action cannot be undone.",
+    "Видалити завдання",
+    "Цю дію неможливо скасувати.",
     "destructive"
   );
 
@@ -56,16 +57,19 @@ export const TaskBreadcrumbs = ({ project, task }: TaskBreadcrumbsProps) => {
       <p className="text-sm lg:text-lg line-clamp-1 max-w-[600px] font-semibold">
         {task.name}
       </p>
-      <Button
-        onClick={handleDeleteTask}
-        disabled={isPending}
-        className="ml-auto"
-        variant={"destructive"}
-        size={"sm"}
-      >
-        <TrashIcon className="size-4 lg:mr-2" />
-        <span className="hidden lg:block">Delete Task</span>
-      </Button>
+      <AdminOnlyAction className="ml-auto">
+        <Button
+          onClick={handleDeleteTask}
+          disabled={isPending}
+          className="ml-auto"
+          variant={"destructive"}
+          size={"sm"}
+          aria-label="Видалити завдання"
+        >
+          <TrashIcon className="size-4 lg:mr-2" />
+          <span className="hidden lg:block">Видалити завдання</span>
+        </Button>
+      </AdminOnlyAction>
     </div>
   );
 };

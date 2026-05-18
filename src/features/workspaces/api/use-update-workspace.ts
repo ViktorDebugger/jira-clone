@@ -29,13 +29,13 @@ export const useUpdateWorkspace = () => {
       return await responce.json();
     },
     onSuccess: ({ data }) => {
-      toast.success("Workspace updated");
+      toast.success("Робочий простір оновлено");
 
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       queryClient.invalidateQueries({ queryKey: ["workspaces", data.$id] });
     },
     onError: () => {
-      toast.error("Failed to update workspace");
+      toast.error("Не вдалося оновити робочий простір");
     },
   });
 

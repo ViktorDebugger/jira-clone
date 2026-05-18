@@ -79,8 +79,8 @@ export const UserButton = () => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="outline-none relative">
-        <Avatar className="size-10 hover:opacity-75 transition border rounded-md border-neutral-300">
-          <AvatarFallback className="bg-neutral-200 font-medium rounded-md text-neutral-500 flex items-center justify-center">
+        <Avatar className="size-10 hover:opacity-75 transition border rounded-md border-neutral-800">
+          <AvatarFallback className="bg-neutral-900 font-medium rounded-md text-neutral-400 flex items-center justify-center">
             {avatarFallback}
           </AvatarFallback>
         </Avatar>
@@ -92,8 +92,8 @@ export const UserButton = () => {
         sideOffset={10}
       >
         <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
-          <Avatar className="size-[52px] hover:opacity-75 transition border rounded-md border-neutral-300">
-            <AvatarFallback className="bg-neutral-200 text-xl rounded-md font-medium text-neutral-500 flex items-center justify-center">
+          <Avatar className="size-[52px] hover:opacity-75 transition border rounded-md border-neutral-800">
+            <AvatarFallback className="bg-neutral-900 text-xl rounded-md font-medium text-neutral-400 flex items-center justify-center">
               {avatarFallback}
             </AvatarFallback>
           </Avatar>
@@ -106,7 +106,7 @@ export const UserButton = () => {
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={handleKeyDown}
                   className="text-center h-8 text-sm"
-                  placeholder="Enter name"
+                  placeholder="Введіть ім'я"
                   autoFocus
                   disabled={isUpdating}
                 />
@@ -137,29 +137,29 @@ export const UserButton = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-neutral-900">
+                <p className="text-sm font-medium text-neutral-100">
                   {name || "User"}
                 </p>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleEditStart}
-                  className="h-4 w-4 p-0 hover:bg-neutral-100"
+                  className="h-4 w-4 p-0 hover:bg-neutral-800"
                 >
-                  <Edit2 className="size-3 text-neutral-500" />
+                  <Edit2 className="size-3 text-neutral-400" />
                 </Button>
               </div>
             )}
-            <p className="text-xs text-neutral-500">{email}</p>
+            <p className="text-xs text-neutral-400">{email}</p>
           </div>
 
           <DottedSeparator className="mb-1" />
           <DropdownMenuItem
             onClick={() => logout()}
-            className="h-10 flex items-center justify-center cursor-pointer font-medium text-amber-700"
+            className="h-10 flex items-center justify-center cursor-pointer font-medium text-red-500 hover:text-red-400"
           >
-            <LogOut className="size-4 mr-2 text-amber-700" />
-            Log out
+            <LogOut className="size-4 mr-2 text-red-500" />
+            Вийти
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>

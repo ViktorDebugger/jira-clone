@@ -15,7 +15,7 @@ export const ProjectIdSettingsClient = () => {
   }
 
   if (!initialValues) {
-    <PageError message="Project not found" />;
+    <PageError message="Проєкт не знайдено" />;
   }
 
   return (

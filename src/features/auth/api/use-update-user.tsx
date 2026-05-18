@@ -26,12 +26,12 @@ export const useUpdateUser = () => {
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("Profile updated");
+      toast.success("Профіль оновлено");
 
       queryClient.invalidateQueries();
     },
     onError: () => {
-      toast.error("Failed to update profile");
+      toast.error("Не вдалося оновити профіль");
     },
   });
 

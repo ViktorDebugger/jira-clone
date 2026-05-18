@@ -19,7 +19,7 @@ import { MemberAvatar } from "@/features/members/components/member-avatar";
 import { Separator } from "@/components/ui/separator";
 import { useDeleteMember } from "@/features/members/api/use-delete-member";
 import { useUpdateMember } from "@/features/members/api/use-update-member";
-import { MemberRole } from "@/features/members/types";
+import { MemberRole, memberRoleLabelsUk } from "@/features/members/types";
 import { useConfirm } from "@/hooks/use-confirm";
 
 interface MembersListProps {
@@ -30,8 +30,8 @@ export const MembersList = ({ email }: MembersListProps) => {
   const workspaceId = useWorkspaceId();
   const { data } = useGetMembers({ workspaceId });
   const [ConfirmDialog, confirm] = useConfirm(
-    "Remove member",
-    "This member will be removed from the workspace",
+    "Видалити учасника",
+    "Цього учасника буде видалено з робочого простору",
     "destructive"
   );
 
@@ -65,19 +65,21 @@ export const MembersList = ({ email }: MembersListProps) => {
   return (
     <Card className="w-full h-full border-none shadow-none">
       <ConfirmDialog />
-      <CardHeader className="flex flex-row items-center gap-x-4 p-7 space-y-0">
-        <Button asChild variant={"secondary"} size={"sm"}>
+      <CardHeader className="flex flex-row flex-wrap items-center gap-3 space-y-0 p-4">
+        <Button asChild variant={"secondary"} size={"sm"} className="shrink-0">
           <Link href={`/workspaces/${workspaceId}`}>
             <ArrowLeftIcon className="size-4 mr-2" />
-            Back
+            Назад
           </Link>
         </Button>
-        <CardTitle className="text-xl font-bold">Members list</CardTitle>
+        <CardTitle className="min-w-0 flex-1 text-xl font-bold text-neutral-100">
+          Список учасників
+        </CardTitle>
       </CardHeader>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         {data?.documents.map((member, index) => (
           <Fragment key={member.$id}>
             <div className="flex items-center gap-4">
@@ -91,15 +93,15 @@ export const MembersList = ({ email }: MembersListProps) => {
                   <span className="font-medium flex gap-4 items-center">
                     {member.name}
                     {member.email === email && (
-                      <span className="text-xs text-neutral-400">(YOU)</span>
+                      <span className="text-xs text-neutral-400">(Ви)</span>
                     )}
                   </span>
 
                   <span className="text-neutral-500 text-xs">
-                    {member!.role}
+                    {memberRoleLabelsUk[member.role]}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{member.email}</p>
+                <p className="text-xs text-neutral-400">{member.email}</p>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -108,7 +110,7 @@ export const MembersList = ({ email }: MembersListProps) => {
                     variant={"secondary"}
                     size={"icon"}
                   >
-                    <MoreVerticalIcon className="size-4 text-muted-foreground" />
+                    <MoreVerticalIcon className="size-4 text-neutral-400" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="end">
@@ -119,7 +121,7 @@ export const MembersList = ({ email }: MembersListProps) => {
                     }
                     disabled={isUpdatingMember}
                   >
-                    Set as Administrator
+                    Зробити адміністратором
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="font-medium"
@@ -128,20 +130,21 @@ export const MembersList = ({ email }: MembersListProps) => {
                     }
                     disabled={isUpdatingMember}
                   >
-                    Set as Member
+                    Зробити учасником
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="font-medium text-amber-700"
+                    variant="destructive"
+                    className="font-medium"
                     onClick={() => handleDeleteMember(member.$id)}
                     disabled={isDeletingMember}
                   >
-                    Remove {member.name}
+                    Видалити {member.name}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
             {index < data.documents.length - 1 && (
-              <Separator className="my-2.5" />
+              <Separator className="my-2.5 bg-neutral-800" />
             )}
           </Fragment>
         ))}

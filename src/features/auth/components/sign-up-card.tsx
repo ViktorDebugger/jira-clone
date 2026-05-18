@@ -13,7 +13,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardDescription,
   CardTitle,
 } from "@/components/ui/card";
 import {
@@ -49,24 +48,14 @@ export const SignUpCard = () => {
 
   return (
     <Card className="w-full h-full md:w-[487px] border-none shadow-none">
-      <CardHeader className="flex items-center flex-col justify-center text-center p-7">
-        <CardTitle className="text-2xl">Sign Up</CardTitle>
-        <CardDescription>
-          By signing up, you agree to our{" "}
-          <Link href="/privacy">
-            <span className="text-blue-700">Privacy Policy</span>
-          </Link>{" "}
-          and{" "}
-          <Link href="/terms">
-            <span className="text-blue-700">Terms of Service</span>
-          </Link>
-        </CardDescription>
+      <CardHeader className="flex w-full flex-col items-center p-4 text-center">
+        <CardTitle className="text-2xl">Реєстрація</CardTitle>
       </CardHeader>
 
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7">
+      <CardContent className="p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -78,7 +67,7 @@ export const SignUpCard = () => {
                     <Input
                       {...field}
                       type="text"
-                      placeholder="Enter your name"
+                      placeholder="Введіть ваше ім'я"
                     />
                   </FormControl>
                   <FormMessage />
@@ -94,7 +83,7 @@ export const SignUpCard = () => {
                     <Input
                       {...field}
                       type="email"
-                      placeholder="Enter email address"
+                      placeholder="Введіть електронну пошту"
                     />
                   </FormControl>
                   <FormMessage />
@@ -110,7 +99,7 @@ export const SignUpCard = () => {
                     <Input
                       {...field}
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder="Введіть пароль"
                     />
                   </FormControl>
                   <FormMessage />
@@ -118,15 +107,15 @@ export const SignUpCard = () => {
               )}
             />
             <Button disabled={isPending} size="lg" className="w-full">
-              Register
+              Зареєструватися
             </Button>
           </form>
         </Form>
       </CardContent>
-      <div className="px-7">
+      <div className="px-4">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex flex-col gap-y-4">
+      <CardContent className="flex flex-col gap-y-4 p-4">
         <Button
           onClick={() => signUpWithGoogle()}
           disabled={isPending}
@@ -135,7 +124,7 @@ export const SignUpCard = () => {
           className="w-full"
         >
           <FcGoogle className="mr-2 size-5" />
-          Login with Google
+          Увійти через Google
         </Button>
         <Button
           onClick={() => signUpWithGithub()}
@@ -145,17 +134,17 @@ export const SignUpCard = () => {
           className="w-full"
         >
           <FaGithub className="mr-2 size-5" />
-          Login with Github
+          Увійти через Github
         </Button>
       </CardContent>
-      <div className="py-7">
+      <div className="px-4 py-2">
         <DottedSeparator />
       </div>
-      <CardContent className="p-7 flex items-center justify-center">
+      <CardContent className="flex items-center justify-center px-4 pb-6 pt-2">
         <p>
-          Already have an account?
+          Вже є акаунт?
           <Link href="/sign-in">
-            <span className="text-blue-700">&nbsp;Sign In</span>
+            <span className="text-red-500">&nbsp;Увійти</span>
           </Link>
         </p>
       </CardContent>

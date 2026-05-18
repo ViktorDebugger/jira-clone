@@ -2,6 +2,12 @@ import { redirect } from "next/navigation";
 
 import { getCurrent } from "@/features/auth/queries";
 import { SignInCard } from "@/features/auth/components/sign-in-card";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export const metadata = pageMetadata(
+  "Увійти",
+  "Увійдіть до FlowForge, щоб керувати завданнями та проєктами команди.",
+);
 
 const SignInPage = async () => {
   const user = await getCurrent();

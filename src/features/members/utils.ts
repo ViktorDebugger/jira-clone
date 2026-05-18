@@ -1,6 +1,7 @@
 import { type Databases, Query } from "node-appwrite";
 
 import { DATABASE_ID, MEMBERS_ID } from "@/config";
+import { MemberRole, type Member } from "@/features/members/types";
 
 interface GetMemberProps {
   databases: Databases;
@@ -13,10 +14,18 @@ export const getMember = async ({
   workspaceId,
   userId,
 }: GetMemberProps) => {
-  const members = await databases.listDocuments(DATABASE_ID, MEMBERS_ID, [
-    Query.equal("workspaceId", workspaceId),
-    Query.equal("userId", userId),
-  ]);
+  const members = await databases.listDocuments<Member>(
+    DATABASE_ID,
+    MEMBERS_ID,
+    [
+      Query.equal("workspaceId", workspaceId),
+      Query.equal("userId", userId),
+    ]
+  );
 
   return members.documents[0];
 };
+
+export function isWorkspaceAdmin(member: Member | undefined | null): boolean {
+  return member?.role === MemberRole.ADMIN;
+}

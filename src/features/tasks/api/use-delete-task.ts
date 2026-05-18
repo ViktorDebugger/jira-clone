@@ -26,15 +26,18 @@ export const useDeleteTask = () => {
       return await responce.json();
     },
     onSuccess: ({ data }) => {
-      toast.success("Task deleted");
+      toast.success("Завдання видалено");
 
       queryClient.invalidateQueries({ queryKey: ["workspace-analytics"] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-analytics-charts"],
+      });
       queryClient.invalidateQueries({ queryKey: ["project-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["task", data.$id] });
     },
     onError: () => {
-      toast.error("Failed to delete task");
+      toast.error("Не вдалося видалити завдання");
     },
   });
 

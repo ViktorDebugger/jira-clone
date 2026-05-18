@@ -1,10 +1,18 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { PencilIcon, XIcon } from "lucide-react";
-import { Task } from "../types";
+
+import { RichTextContent } from "@/components/rich-text/rich-text-content";
+import { RichTextEditor } from "@/components/rich-text/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import { DottedSeparator } from "@/components/dotted-separator";
+import {
+  isHtmlContentEmpty,
+  normalizeRichTextBlob,
+} from "@/lib/rich-text-plain";
+import { Task } from "../types";
 import { useUpdateTask } from "../api/use-update-task";
-import { Textarea } from "@/components/ui/textarea";
 
 interface TaskDescriptionProps {
   task: Task;
@@ -12,8 +20,14 @@ interface TaskDescriptionProps {
 
 export const TaskDescription = ({ task }: TaskDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(task.description || "");
+  const [value, setValue] = useState(task.description ?? "<p></p>");
   const { mutate, isPending } = useUpdateTask();
+
+  useEffect(() => {
+    if (!isEditing) {
+      setValue(task.description ?? "<p></p>");
+    }
+  }, [task.description, task.$id, isEditing]);
 
   const handleSave = () => {
     mutate(
@@ -25,51 +39,62 @@ export const TaskDescription = ({ task }: TaskDescriptionProps) => {
         onSuccess: () => {
           setIsEditing(false);
         },
-      }
+      },
     );
   };
 
+  const handleToggleEdit = () => {
+    setValue(task.description ?? "<p></p>");
+    setIsEditing((prev) => !prev);
+  };
+
+  const stored = task.description ?? "";
+  const isEmptyStored =
+    !stored.trim() || isHtmlContentEmpty(normalizeRichTextBlob(stored));
+
   return (
-    <div className="p-4 border rounded-lg">
-      <div className="flex items-center justify-between">
-        <p className="text-lg font-semibold">Overview</p>
+    <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-lg font-semibold text-neutral-100">Опис</p>
         <Button
-          onClick={() => setIsEditing((prev) => !prev)}
+          onClick={handleToggleEdit}
           size={"sm"}
           variant={"secondary"}
+          type="button"
         >
           {isEditing ? (
             <XIcon className="size-4 mr-2" />
           ) : (
             <PencilIcon className="size-4 mr-2" />
           )}
-          {isEditing ? "Cancel" : "Edit"}
+          {isEditing ? "Скасувати" : "Редагувати"}
         </Button>
       </div>
       <DottedSeparator className="my-4" />
       {isEditing ? (
         <div className="flex flex-col gap-y-4">
-          <Textarea
-            placeholder="Add a description"
+          <RichTextEditor
             value={value}
-            rows={4}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={setValue}
+            placeholder="Додати опис…"
             disabled={isPending}
-            className="resize-none"
           />
           <Button
             size={"sm"}
-            className="w-fit ml-auto"
+            className="ml-auto w-fit"
+            type="button"
             onClick={handleSave}
-            disabled={isPending}
+            disabled={isPending || isHtmlContentEmpty(normalizeRichTextBlob(value))}
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending ? "Збереження..." : "Зберегти зміни"}
           </Button>
         </div>
       ) : (
-        <div>
-          {task.description || (
-            <span className="text-muted-foreground">No description set</span>
+        <div className="text-sm">
+          {isEmptyStored ? (
+            <span className="text-neutral-500">Опис не встановлено</span>
+          ) : (
+            <RichTextContent html={stored} />
           )}
         </div>
       )}
