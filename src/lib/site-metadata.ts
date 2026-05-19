@@ -7,26 +7,21 @@ import {
   WORKSPACES_ID,
 } from "@/config";
 import { createSessionClient } from "@/lib/appwrite";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const SITE_NAME = "FlowForge";
 
 export const SITE_DESCRIPTION =
   "FlowForge — платформа для керування завданнями, проєктами та командною роботою в одному робочому просторі.";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
 export const defaultMetadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: SITE_NAME,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-  },
 };
 
 export function pageMetadata(
