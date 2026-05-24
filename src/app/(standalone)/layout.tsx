@@ -10,7 +10,7 @@ const StandAloneLayout = ({ children }: StandAloneLayoutProps) => {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-screen-2xl p-4">
-        <nav className="flex justify-between items-center h-[73px]">
+        <nav className="no-print flex h-[73px] items-center justify-between">
           <LogoBrand imageWidth={51} imageHeight={19} />
           <UserButton />
         </nav>

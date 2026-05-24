@@ -111,6 +111,7 @@ interface AnalyticsChartPanelProps {
   data: AnalyticsChartDatum[];
   chartType: AnalyticsChartTabId;
   metricLabel?: string;
+  variant?: "dashboard" | "report";
 }
 
 function augmentFill(dataset: AnalyticsChartDatum[]) {
@@ -198,13 +199,20 @@ type PieLegendItem = AnalyticsChartDatum & { fill?: string };
 
 interface PieChartLegendProps {
   items: readonly PieLegendItem[];
+  variant?: "dashboard" | "report";
 }
 
-function PieChartLegend({ items }: PieChartLegendProps) {
+function PieChartLegend({ items, variant = "dashboard" }: PieChartLegendProps) {
+  const isReport = variant === "report";
   return (
     <ul
       aria-label="Пояснення сегментів діаграми"
-      className="chart-legend-scroll flex min-h-0 max-h-[120px] flex-col gap-2 overflow-y-auto overscroll-contain pr-1 text-xs sm:max-h-full sm:flex-[5] sm:border-l sm:border-neutral-800 sm:pl-4"
+      className={cn(
+        "flex flex-col gap-2 text-xs",
+        isReport
+          ? "sm:flex-[5] sm:border-l sm:border-neutral-200 sm:pl-4"
+          : "chart-legend-scroll min-h-0 max-h-[120px] overflow-y-auto overscroll-contain pr-1 sm:max-h-full sm:flex-[5] sm:border-l sm:border-neutral-800 sm:pl-4",
+      )}
     >
       {items.map((entry, index) => {
         const label = entry.fullName ?? entry.name;
@@ -221,7 +229,10 @@ function PieChartLegend({ items }: PieChartLegendProps) {
               aria-hidden
             />
             <span
-              className="min-w-0 flex-1 leading-snug font-medium text-neutral-200"
+              className={cn(
+                "min-w-0 flex-1 leading-snug font-medium",
+                isReport ? "text-neutral-700" : "text-neutral-200",
+              )}
               title={label}
             >
               {label}
@@ -236,10 +247,13 @@ function PieChartLegend({ items }: PieChartLegendProps) {
   );
 }
 
-function EmptyChartPlaceholder() {
+function EmptyChartPlaceholder({ isReport = false }: { isReport?: boolean }) {
   return (
     <div
-      className="flex h-[280px] items-center justify-center text-sm text-neutral-500"
+      className={cn(
+        "flex h-[280px] items-center justify-center text-sm text-neutral-500",
+        isReport && "text-neutral-500",
+      )}
       role="status"
     >
       Немає даних для графіка
@@ -249,12 +263,29 @@ function EmptyChartPlaceholder() {
 
 const CHART_WRAP_CLASS = "h-[280px] w-full";
 
+function splitChartLayoutClass(isReport: boolean): string {
+  return cn(
+    "flex w-full flex-col gap-3 sm:flex-row sm:gap-4",
+    isReport
+      ? "sm:items-start"
+      : "sm:h-[280px] border-t border-neutral-800 pt-3 sm:border-t-0 sm:pt-0",
+    isReport && "border-t border-neutral-200 pt-3 sm:border-t-0 sm:pt-0",
+  );
+}
+
 export function AnalyticsChartPanel({
   title,
   data,
   chartType,
   metricLabel = "Завдання",
+  variant = "dashboard",
 }: AnalyticsChartPanelProps) {
+  const isReport = variant === "report";
+  const tickColor = isReport ? "#525252" : "#a3a3a3";
+  const axisColor = isReport ? "#737373" : "#404040";
+  const gridClass = isReport ? "stroke-neutral-300" : "stroke-neutral-700/70";
+  const animate = !isReport;
+
   const filled = useMemo(() => augmentFill(data), [data]);
 
   const maxRadar = useMemo(
@@ -266,7 +297,7 @@ export function AnalyticsChartPanel({
 
   let chartBody: ReactNode;
   if (!hasRows) {
-    chartBody = <EmptyChartPlaceholder />;
+    chartBody = <EmptyChartPlaceholder isReport={isReport} />;
   } else {
     switch (chartType) {
       case "horizontal-bar":
@@ -280,32 +311,35 @@ export function AnalyticsChartPanel({
               >
                 <CartesianGrid
                   strokeDasharray="4 6"
-                  className="stroke-neutral-700/70"
+                  className={gridClass}
                   horizontal={false}
                 />
                 <XAxis
                   type="number"
-                  tick={{ fill: "#a3a3a3", fontSize: 12 }}
+                  tick={{ fill: tickColor, fontSize: 12 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#404040" }}
+                  axisLine={{ stroke: axisColor }}
                   allowDecimals={false}
                 />
                 <YAxis
                   type="category"
                   dataKey="name"
                   width={100}
-                  tick={{ fill: "#a3a3a3", fontSize: 11 }}
+                  tick={{ fill: tickColor, fontSize: 11 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#404040" }}
+                  axisLine={{ stroke: axisColor }}
                 />
-                <Tooltip
-                  content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
-                  cursor={{ fill: "rgba(38,38,38,0.35)" }}
-                />
+                {!isReport ? (
+                  <Tooltip
+                    content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
+                    cursor={{ fill: "rgba(38,38,38,0.35)" }}
+                  />
+                ) : null}
                 <Bar
                   dataKey="value"
                   name={metricLabel}
                   radius={[0, 4, 4, 0]}
+                  isAnimationActive={animate}
                 >
                   {filled.map((_, i) => (
                     <Cell
@@ -326,29 +360,32 @@ export function AnalyticsChartPanel({
               <BarChart data={filled} margin={{ bottom: 8, left: -8 }}>
                 <CartesianGrid
                   strokeDasharray="4 6"
-                  className="stroke-neutral-700/70"
+                  className={gridClass}
                   vertical={false}
                 />
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "#a3a3a3", fontSize: 12 }}
+                  tick={{ fill: tickColor, fontSize: 12 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#404040" }}
+                  axisLine={{ stroke: axisColor }}
                 />
                 <YAxis
-                  tick={{ fill: "#a3a3a3", fontSize: 12 }}
+                  tick={{ fill: tickColor, fontSize: 12 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#404040" }}
+                  axisLine={{ stroke: axisColor }}
                   allowDecimals={false}
                 />
-                <Tooltip
-                  content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
-                  cursor={{ fill: "rgba(38,38,38,0.35)" }}
-                />
+                {!isReport ? (
+                  <Tooltip
+                    content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
+                    cursor={{ fill: "rgba(38,38,38,0.35)" }}
+                  />
+                ) : null}
                 <Bar
                   dataKey="value"
                   name={metricLabel}
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={animate}
                 >
                   {filled.map((_, i) => (
                     <Cell
@@ -364,8 +401,13 @@ export function AnalyticsChartPanel({
         break;
       case "pie":
         chartBody = (
-          <div className="flex w-full flex-col gap-3 border-t border-neutral-800 pt-3 sm:h-[280px] sm:flex-row sm:gap-4 sm:border-t-0 sm:pt-0">
-            <div className="h-[200px] w-full shrink-0 sm:h-full sm:flex-[6] sm:min-h-0">
+          <div className={splitChartLayoutClass(isReport)}>
+            <div
+              className={cn(
+                "h-[200px] w-full shrink-0 sm:flex-[6] sm:min-h-0",
+                isReport ? "sm:h-[240px]" : "sm:h-full",
+              )}
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -376,6 +418,7 @@ export function AnalyticsChartPanel({
                     cy="50%"
                     outerRadius={92}
                     paddingAngle={1}
+                    isAnimationActive={animate}
                   >
                     {filled.map((entry, index) => (
                       <Cell
@@ -387,11 +430,13 @@ export function AnalyticsChartPanel({
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<PieTooltip metricLabel={metricLabel} />} />
+                  {!isReport ? (
+                    <Tooltip content={<PieTooltip metricLabel={metricLabel} />} />
+                  ) : null}
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <PieChartLegend items={filled} />
+            <PieChartLegend items={filled} variant={variant} />
           </div>
         );
         break;
@@ -400,16 +445,13 @@ export function AnalyticsChartPanel({
           <div className={CHART_WRAP_CLASS}>
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={filled} cx="50%" cy="50%" outerRadius="75%">
-                <PolarGrid
-                  className="stroke-neutral-700/70"
-                  strokeDasharray="4 6"
-                />
+                <PolarGrid className={gridClass} strokeDasharray="4 6" />
                 <PolarAngleAxis
                   dataKey="name"
-                  tick={{ fill: "#a3a3a3", fontSize: 10 }}
+                  tick={{ fill: tickColor, fontSize: 10 }}
                 />
                 <PolarRadiusAxis
-                  tick={{ fill: "#a3a3a3", fontSize: 10 }}
+                  tick={{ fill: tickColor, fontSize: 10 }}
                   domain={[0, maxRadar]}
                   allowDecimals={false}
                 />
@@ -419,10 +461,13 @@ export function AnalyticsChartPanel({
                   stroke="#ef4444"
                   fill="#ef4444"
                   fillOpacity={0.45}
+                  isAnimationActive={animate}
                 />
-                <Tooltip
-                  content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
-                />
+                {!isReport ? (
+                  <Tooltip
+                    content={<AnalyticsChartTooltip metricLabel={metricLabel} />}
+                  />
+                ) : null}
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -430,8 +475,13 @@ export function AnalyticsChartPanel({
         break;
       case "radial":
         chartBody = (
-          <div className="flex w-full flex-col gap-3 border-t border-neutral-800 pt-3 sm:h-[280px] sm:flex-row sm:gap-4 sm:border-t-0 sm:pt-0">
-            <div className="h-[200px] w-full shrink-0 sm:h-full sm:flex-[6] sm:min-h-0">
+          <div className={splitChartLayoutClass(isReport)}>
+            <div
+              className={cn(
+                "h-[200px] w-full shrink-0 sm:flex-[6] sm:min-h-0",
+                isReport ? "sm:h-[240px]" : "sm:h-full",
+              )}
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <RadialBarChart
                   cx="50%"
@@ -454,9 +504,11 @@ export function AnalyticsChartPanel({
                   />
                   <RadialBar
                     dataKey="value"
-                    background={{ fill: "rgba(71,85,105,0.4)" }}
+                    background={{
+                      fill: isReport ? "rgba(212,212,212,0.5)" : "rgba(71,85,105,0.4)",
+                    }}
                     cornerRadius={4}
-                    isAnimationActive={false}
+                    isAnimationActive={animate}
                     minPointSize={8}
                   >
                     {filled.map((entry, i) => (
@@ -469,11 +521,13 @@ export function AnalyticsChartPanel({
                       />
                     ))}
                   </RadialBar>
-                  <Tooltip content={<PieTooltip metricLabel={metricLabel} />} />
+                  {!isReport ? (
+                    <Tooltip content={<PieTooltip metricLabel={metricLabel} />} />
+                  ) : null}
                 </RadialBarChart>
               </ResponsiveContainer>
             </div>
-            <PieChartLegend items={filled} />
+            <PieChartLegend items={filled} variant={variant} />
           </div>
         );
         break;
@@ -483,10 +537,20 @@ export function AnalyticsChartPanel({
   return (
     <section
       className={cn(
-        "rounded-lg border border-neutral-800 bg-neutral-900 p-4 shadow-sm",
+        "rounded-lg border p-4 shadow-sm",
+        isReport
+          ? "border-neutral-200 bg-white"
+          : "border-neutral-800 bg-neutral-900",
       )}
     >
-      <h2 className="mb-4 text-sm font-semibold text-neutral-200">{title}</h2>
+      <h2
+        className={cn(
+          "mb-4 text-sm font-semibold",
+          isReport ? "text-neutral-800" : "text-neutral-200",
+        )}
+      >
+        {title}
+      </h2>
       {chartBody}
     </section>
   );
